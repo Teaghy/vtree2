@@ -67,6 +67,7 @@
 
 <script>
 import CTree from '@';
+import './vtree/style.css';
 import treeDataGenerator from '../tests/tree-data-generator';
 
 const dataAmountMap = {
