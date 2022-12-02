@@ -66,8 +66,12 @@
 </template>
 
 <script>
-import CTree from '@';
-import './vtree/style.css';
+// import CTree from '@';
+import CTree from '@teaghy/vtree';
+
+import '@teaghy/vtree/dist/style.css';
+// import CTree from './vtree/virtual-tree.min.js';
+// import './vtree/style.css';
 import treeDataGenerator from '../tests/tree-data-generator';
 
 const dataAmountMap = {
@@ -141,6 +145,7 @@ export default {
 </script>
 
 <style lang="less" scoped>
+// @import '~@teaghy/vtree/dist/style.css';
 .container {
   width: 100%;
   height: 100%;

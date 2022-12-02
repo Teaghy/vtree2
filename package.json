@@ -1,7 +1,7 @@
 {
   "name": "@teaghy/vtree",
   "private": false,
-  "version": "0.0.3",
+  "version": "0.0.8",
   "type": "module",
   "files": [
     "dist"
@@ -12,6 +12,10 @@
     ".": {
       "import": "./dist/virtual-tree.js",
       "require": "./dist/virtual-tree.umd.cjs"
+    },
+    "./dist/style.css": {
+      "import": "./dist/style.css",
+      "require": "./dist/style.css"
     }
   },
   "scripts": {
@@ -20,9 +24,12 @@
     "preview": "vite preview --port 4173",
     "build-only": "vite build",
     "type-check": "vue-tsc --noEmit",
-    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore"
+    "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
+    "build:publish": "npm run build && npm exec terser -- -c -m --module dist/virtual-tree.js > dist/virtual-tree.min.js",
+    "publish": "npm run build && npm publish"
   },
   "dependencies": {
+    "@teaghy/vtree": "^0.0.8",
     "vue": "^2.7.7"
   },
   "devDependencies": {
@@ -42,7 +49,7 @@
     "prettier": "^2.5.1",
     "terser": "^5.16.0",
     "typescript": "~4.7.4",
-    "vite": "^3.0.2",
+    "vite": "^3.2.0",
     "vue-tsc": "^0.38.8"
   },
   "publishConfig": {

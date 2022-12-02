@@ -2,6 +2,7 @@ lockfileVersion: 5.4
 
 specifiers:
   '@rushstack/eslint-patch': ^1.1.0
+  '@teaghy/vtree': ^0.0.8
   '@types/node': ^16.18.4
   '@vitejs/plugin-legacy': ^2.0.0
   '@vitejs/plugin-vue2': ^1.1.2
@@ -17,11 +18,12 @@ specifiers:
   prettier: ^2.5.1
   terser: ^5.16.0
   typescript: ~4.7.4
-  vite: ^3.0.2
+  vite: ^3.2.0
   vue: ^2.7.7
   vue-tsc: ^0.38.8
 
 dependencies:
+  '@teaghy/vtree': 0.0.8
   vue: 2.7.14
 
 devDependencies:
@@ -480,6 +482,33 @@ packages:
   /@rushstack/eslint-patch/1.2.0:
     resolution: {integrity: sha512-sXo/qW2/pAcmT43VoRKOJbDOfV3cYpq3szSVfIThQXNt+E4DfKj361vaAt3c88U5tPUxzEswam7GW48PJqtKAg==}
     dev: true
+
+  /@teaghy/vtree/0.0.5:
+    resolution: {integrity: sha512-ueDamS3KG0lUjh3DRJlsV6RGLW/Mgmt0sZ0PkzRoNeM0vxxEPGNa61Sj/jWMXTcEfEzQdD0ZSbSrGm2L/nzu5A==}
+    dependencies:
+      vue: 2.7.14
+    dev: false
+
+  /@teaghy/vtree/0.0.6:
+    resolution: {integrity: sha512-ZXedoZ9docMYWO4viDX12KFA97JIS3Dcl/vxzKKoZzkvgecTj19DoK/1hUAt6TyqmAni7y4fBmLljplehbX+0w==}
+    dependencies:
+      '@teaghy/vtree': 0.0.5
+      vue: 2.7.14
+    dev: false
+
+  /@teaghy/vtree/0.0.7:
+    resolution: {integrity: sha512-Zty6Km7ET6uMDMtlamG1HoPy42zkVt0Cd3doGK2j/bZh1ml6+isNJIQzY6BYxqHCfO042BY7NuckNDDwUFnzeA==}
+    dependencies:
+      '@teaghy/vtree': 0.0.6
+      vue: 2.7.14
+    dev: false
+
+  /@teaghy/vtree/0.0.8:
+    resolution: {integrity: sha512-/zldF3f6YmD6vREzYkERzuZ02m6/U4aHkVxE1g9sELVNLKg1tUQIjK8xUwjpfvtM0TIrUzQCtPWxDWwrdVQjQA==}
+    dependencies:
+      '@teaghy/vtree': 0.0.7
+      vue: 2.7.14
+    dev: false
 
   /@types/json-schema/7.0.11:
     resolution: {integrity: sha512-wOuvG1SN4Us4rez+tylwwwCV1psiNVOkJeM3AUWUNWg/jDQY2+HE/444y5gc+jBmRqASOm2Oeh5c1axHobwRKQ==}

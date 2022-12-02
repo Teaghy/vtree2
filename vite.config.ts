@@ -23,15 +23,17 @@ export default defineConfig({
   },
   build: {
     minify: 'terser',
-    // terserOptions: {
-
-    // },
+    target: 'esnext',
     lib: {
       // Could also be a dictionary or array of multiple entry points
       entry: resolve(__dirname, 'src/index.ts'),
       name: 'VirtualTree',
       // the proper extensions will be added
       fileName: 'virtual-tree',
+    },
+    terserOptions: {
+      compress: true,
+      mangle: true,
     },
     rollupOptions: {
       // 确保外部化处理那些你不想打包进库的依赖
