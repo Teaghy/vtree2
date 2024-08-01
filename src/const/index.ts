@@ -5,7 +5,7 @@ export enum ignoreEnum {
   children = 'children',
 }
 
-export type IgnoreType = keyof typeof ignoreEnum;
+export type IgnoreType = keyof typeof ignoreEnum
 //#endregion ignoreMode
 
 //#region API
@@ -77,9 +77,9 @@ export const API_METHODS = [
   'showCheckedNodes',
   'loadRootNodes',
   'scrollTo',
-];
+]
 
-export type ApiType = keyof typeof apiEnum;
+export type ApiType = keyof typeof apiEnum
 
 // TreeSearch API
 const enum treeSearchApiEnum {
@@ -88,9 +88,13 @@ const enum treeSearchApiEnum {
   'search',
 }
 
-export const TREE_SEARCH_API_METHODS = ['clearKeyword', 'getKeyword', 'search'];
+export const TREE_SEARCH_API_METHODS = [
+  'clearKeyword',
+  'getKeyword',
+  'search',
+]
 
-export type TreeSearchApiType = keyof typeof treeSearchApiEnum;
+export type TreeSearchApiType = keyof typeof treeSearchApiEnum
 //#endregion API
 
 //#region Placement
@@ -103,7 +107,7 @@ export enum placementEnum {
   'top' = 'top',
 }
 
-export type PlacementType = keyof typeof placementEnum;
+export type PlacementType = keyof typeof placementEnum
 //#endregion Placement
 
 //#region Scroll position
@@ -113,7 +117,7 @@ export enum verticalPositionEnum {
   bottom = 'bottom',
 }
 
-export type VerticalPositionType = keyof typeof verticalPositionEnum;
+export type VerticalPositionType = keyof typeof verticalPositionEnum
 //#endregion Scroll position
 
 //#region Drag
@@ -124,4 +128,18 @@ export enum dragHoverPartEnum {
 }
 //#endregion Drag
 
-export type TreeNodeKeyType = string | number;
+export type TreeNodeKeyType = string | number
+
+export enum showLineType {
+  // dotted = 'dotted',
+  dashed = 'dashed',
+  solid = 'solid',
+}
+
+export interface ShowLine {
+  /** 连接线宽度，svg stroke-width， 默认 1px */
+  width?: number
+  type?: showLineType
+  color?: string
+  polyline?: boolean
+}

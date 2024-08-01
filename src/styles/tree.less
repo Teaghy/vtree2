@@ -2,6 +2,7 @@
   // prefix
   @tree-prefix: ~"@{ctree-prefix}-tree";
   @tree-node-prefix: ~"@{tree-prefix}-node";
+  @tree-expand-animation: ~'@{ctree-prefix}-expand-animation';
 
   // Tree
   .@{tree-prefix} {
@@ -77,8 +78,14 @@
   .@{tree-node-prefix} {
     @base-square-length: 20px;
 
+    // 缩进
+    &__indent-wrapper {
+      display: flex;
+    }
+
     // 容器
     &__wrapper {
+      flex: 1;
       display: flex;
       flex-direction: column;
     }
@@ -279,6 +286,25 @@
         cursor: not-allowed;
         color: @ctree-color-disabled;
       }
+    }
+  }
+
+  .@{tree-expand-animation} {
+    &-enter,
+    &-leave-to {
+      opacity: 0;
+      grid-template-rows: 0fr;
+    }
+
+    &-enter-to,
+    &-leave {
+      opacity: 1;
+      grid-template-rows: 1fr;
+    }
+
+    &-enter-active,
+    &-leave-active {
+      transition: opacity .2s, grid-template-rows .2s;
     }
   }
 }

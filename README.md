@@ -1,5 +1,7 @@
 # vTree
 
+> Forked from wsfe/vue-tree
+
 ## 安装
 
 ### yarn 安装方式

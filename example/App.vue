@@ -1,11 +1,12 @@
 <template>
   <div class="app">
-    <Performance></Performance>
+    <!-- <Performance></Performance> -->
+     <Feature></Feature>
   </div>
 </template>
 
 <script>
-// import Feature from './Feature.vue'
+import Feature from './Feature.vue'
 import Performance from './Performance.vue';
 // import Loading from './Loading.vue'
 // import Search from './Search.vue'
@@ -33,7 +34,7 @@ import Performance from './Performance.vue';
 import comp from './comp';
 export default {
   name: 'App',
-  components: { comp, Performance },
+  components: { comp, Performance, Feature },
   // data () {
   //   const tabList = Object.keys(components)
   //   return {

@@ -66,12 +66,9 @@
 </template>
 
 <script>
-// import CTree from '@';
-import CTree from '@teaghy/vtree';
+import CTree from '@/components/Tree.vue';
 
-import '@teaghy/vtree/dist/style.css';
-// import CTree from './vtree/virtual-tree.min.js';
-// import './vtree/style.css';
+import '@/styles/index.less';
 import treeDataGenerator from '../tests/tree-data-generator';
 
 const dataAmountMap = {
