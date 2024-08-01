@@ -23,8 +23,8 @@
     <div
       :class="wrapperCls"
       :style="{
-        paddingLeft: showLine ? 'none' : (usePadding ? `${data._level * nodeIndent}px` : null),
-        marginLeft: showLine ? 'none' : (usePadding ? null : `${data._level * nodeIndent}px`),
+        paddingLeft: showLine ? 'none' : (usePadding ? `${data._level * nodeIndent}px` : 'inherit'),
+        marginLeft: showLine ? 'none' : (usePadding ? 'inherit' : `${data._level * nodeIndent}px`),
       }"
     >
       <div :class="dropBeforeCls"></div>
@@ -84,11 +84,11 @@
 <script lang="ts">
 import Vue from 'vue';
 import type { VueConstructor, CreateElement, VNode } from 'vue';
-import { TreeNode } from '../store'
+import type { TreeNode } from '../store'
 import LoadingIcon from './LoadingIcon.vue'
 import type { ShowLine } from '../const'
 import { dragHoverPartEnum, showLineType } from '../const'
-import CTree from './Tree.vue'
+import type CTree from './Tree.vue'
 
 const prefixCls = 'ctree-tree-node'
 

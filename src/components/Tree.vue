@@ -122,7 +122,7 @@
 <script lang="ts">
 import Vue from 'vue'
 import type { VueConstructor, CreateElement, VNode } from 'vue';
-import TreeStore, { TreeNode } from '../store'
+import TreeStore, { TreeNode, type TreeNode as TreeNodeType} from '../store'
 import CTreeNode from './TreeNode.vue'
 import LoadingIcon from './LoadingIcon.vue'
 import type { IEventNames, ListenerType, FilterFunctionType } from '../store/tree-store'
@@ -176,7 +176,7 @@ export default (Vue as VueConstructor<Vue & {
     store: TreeStore,
 
     /** block 节点（所有可见节点） */
-    blockNodes: TreeNode[],
+    blockNodes: TreeNodeType[],
   },
 }>).extend({
   name: 'CTree',
@@ -322,10 +322,10 @@ export default (Vue as VueConstructor<Vue & {
     },
 
     /** 异步加载方法 */
-    load: Function as any as () => (node: null | TreeNode, resolve: Function, reject: Function) => any,
+    load: Function as any as () => (node: null | TreeNodeType, resolve: Function, reject: Function) => any,
 
     /** 节点渲染 render 函数 */
-    render: Function as any as () => (h: CreateElement, node: TreeNode) => VNode,
+    render: Function as any as () => (h: CreateElement, node: TreeNodeType) => VNode,
 
     /** 节点过滤方法 */
     filterMethod: Function as any as () => FilterFunctionType,
@@ -384,7 +384,7 @@ export default (Vue as VueConstructor<Vue & {
         String,
         Object,
         Array as () => Array<string | object>,
-        Function as any as () => (node: TreeNode) => string | object | Array<string | object>,
+        Function as any as () => (node: TreeNodeType) => string | object | Array<string | object>,
       ],
     },
 
@@ -413,7 +413,7 @@ export default (Vue as VueConstructor<Vue & {
     const valueCache = Array.isArray(this.value) ? this.value.concat() : this.value
     return {
       /** 未加载选中的节点，展示已选时生成，其他情况下没用 */
-      unloadCheckedNodes: ([] as TreeNode[]),
+      unloadCheckedNodes: ([] as TreeNodeType[]),
 
       /** 可见节点个数 */
       blockLength: 0,
@@ -434,7 +434,7 @@ export default (Vue as VueConstructor<Vue & {
       renderAmountCache: 0,
 
       /** 渲染节点（实际渲染节点） */
-      renderNodes: ([] as TreeNode[]),
+      renderNodes: ([] as TreeNodeType[]),
 
       /** 渲染开始下标 */
       renderStart: 0,
@@ -461,20 +461,20 @@ export default (Vue as VueConstructor<Vue & {
         ready: false,
         currentExpandState: false,
 
-        topNodes: [] as TreeNode[],
-        middleNodes: [] as TreeNode[],
-        bottomNodes: [] as TreeNode[],
+        topNodes: [] as TreeNodeType[],
+        middleNodes: [] as TreeNodeType[],
+        bottomNodes: [] as TreeNodeType[],
       },
     }
   },
   computed: {
     //#region Styles
-    topSpaceStyles (): object {
+    topSpaceStyles (): any {
       return {
         height: `${this.topSpaceHeight}px`,
       }
     },
-    bottomSpaceStyles (): object {
+    bottomSpaceStyles (): any {
       return {
         height: `${this.bottomSpaceHeight}px`,
       }
@@ -544,7 +544,7 @@ export default (Vue as VueConstructor<Vue & {
     },
 
     noSiblingNodeMap (): Record<string, true> {
-      const parentsOfFirstNode: TreeNode[] = []
+      const parentsOfFirstNode: TreeNodeType[] = []
       let nodeParent = this.renderNodes[0] && this.renderNodes[0]._parent
 
       while (nodeParent) {
@@ -555,7 +555,7 @@ export default (Vue as VueConstructor<Vue & {
       const nodesToIterate = parentsOfFirstNode.concat(this.renderNodes)
 
       const map: Record<string, true> = {}
-      const stack: TreeNode[] = []
+      const stack: TreeNodeType[] = []
       nodesToIterate.forEach((renderNode) => {
         const currentNodeLevel = renderNode._level
         let length = stack.length
@@ -626,7 +626,7 @@ export default (Vue as VueConstructor<Vue & {
     setExpandAll (value: boolean): void {
       this.nonReactive.store.setExpandAll(value)
     },
-    getCheckedNodes (ignoreMode?: IgnoreType): TreeNode[] {
+    getCheckedNodes (ignoreMode?: IgnoreType): TreeNodeType[] {
       ignoreMode = ignoreMode || this.ignoreMode
       return this.nonReactive.store.getCheckedNodes(ignoreMode)
     },
@@ -634,58 +634,58 @@ export default (Vue as VueConstructor<Vue & {
       ignoreMode = ignoreMode || this.ignoreMode
       return this.nonReactive.store.getCheckedKeys(ignoreMode)
     },
-    getIndeterminateNodes (): TreeNode[] {
+    getIndeterminateNodes (): TreeNodeType[] {
       return this.nonReactive.store.getIndeterminateNodes()
     },
-    getSelectedNode (): TreeNode | null {
+    getSelectedNode (): TreeNodeType | null {
       return this.nonReactive.store.getSelectedNode()
     },
     getSelectedKey (): TreeNodeKeyType | null {
       return this.nonReactive.store.getSelectedKey()
     },
-    getExpandNodes (): TreeNode[] {
+    getExpandNodes (): TreeNodeType[] {
       return this.nonReactive.store.getExpandNodes()
     },
     getExpandKeys (): TreeNodeKeyType[] {
       return this.nonReactive.store.getExpandKeys()
     },
-    getCurrentVisibleNodes (): TreeNode[] {
+    getCurrentVisibleNodes (): TreeNodeType[] {
       return this.nonReactive.store.flatData.filter((node) => node._filterVisible)
     },
-    getNode (key: TreeNodeKeyType): TreeNode | null {
+    getNode (key: TreeNodeKeyType): TreeNodeType | null {
       return this.nonReactive.store.getNode(key)
     },
     /** 返回树形结构的节点数据 */
-    getTreeData (): TreeNode[] {
+    getTreeData (): TreeNodeType[] {
       return this.nonReactive.store.data
     },
     /** 返回扁平化后的节点数据 */
-    getFlatData (): TreeNode[] {
+    getFlatData (): TreeNodeType[] {
       return this.nonReactive.store.flatData
     },
     getNodesCount (): number {
       return this.nonReactive.store.flatData.length
     },
-    insertBefore (insertedNode: TreeNodeKeyType | ITreeNodeOptions, referenceKey: TreeNodeKeyType): TreeNode | null {
+    insertBefore (insertedNode: TreeNodeKeyType | ITreeNodeOptions, referenceKey: TreeNodeKeyType): TreeNodeType | null {
       return this.nonReactive.store.insertBefore(insertedNode, referenceKey)
     },
-    insertAfter (insertedNode: TreeNodeKeyType | ITreeNodeOptions, referenceKey: TreeNodeKeyType): TreeNode | null {
+    insertAfter (insertedNode: TreeNodeKeyType | ITreeNodeOptions, referenceKey: TreeNodeKeyType): TreeNodeType | null {
       return this.nonReactive.store.insertAfter(insertedNode, referenceKey)
     },
-    append (insertedNode: TreeNodeKeyType | ITreeNodeOptions, parentKey: TreeNodeKeyType): TreeNode | null {
+    append (insertedNode: TreeNodeKeyType | ITreeNodeOptions, parentKey: TreeNodeKeyType): TreeNodeType | null {
       return this.nonReactive.store.append(insertedNode, parentKey)
     },
-    prepend (insertedNode: TreeNodeKeyType | ITreeNodeOptions, parentKey: TreeNodeKeyType): TreeNode | null {
+    prepend (insertedNode: TreeNodeKeyType | ITreeNodeOptions, parentKey: TreeNodeKeyType): TreeNodeType | null {
       return this.nonReactive.store.prepend(insertedNode, parentKey)
     },
-    remove (removedKey: TreeNodeKeyType): TreeNode | null {
+    remove (removedKey: TreeNodeKeyType): TreeNodeType | null {
       return this.nonReactive.store.remove(removedKey)
     },
     filter (
       keyword: string,
       filterMethod?: FilterFunctionType,
     ): void {
-      const defaultFilterMethod = (keyword: string, node: TreeNode) => {
+      const defaultFilterMethod = (keyword: string, node: TreeNodeType) => {
         const title = node[this.titleField]
         if (title == null || !title.toString) return false
         return (title.toString() as string).toLowerCase().indexOf(keyword.toLowerCase()) > -1
@@ -704,7 +704,7 @@ export default (Vue as VueConstructor<Vue & {
       if (!showUnloadCheckedNodes) return
       const unloadKeys = this.nonReactive.store.getUnloadCheckedKeys()
       if (unloadKeys.length) {
-        const unloadNodes: TreeNode[] = unloadKeys.map((key) => {
+        const unloadNodes: TreeNodeType[] = unloadKeys.map((key) => {
           const queryList = this.unloadDataList.concat(checkedNodesCache)
           let title = key
           queryList.some((query) => {
@@ -791,19 +791,19 @@ export default (Vue as VueConstructor<Vue & {
     },
 
     //#region Handle node events
-    handleNodeCheck (node: TreeNode): void {
+    handleNodeCheck (node: TreeNodeType): void {
       if (!this.cascade && this.enableLeafOnly && !node.isLeaf) return
       this.nonReactive.store.setChecked(node[this.keyField], node.indeterminate ? false : !node.checked, true, true, true)
     },
-    handleNodeSelect (node: TreeNode): void {
+    handleNodeSelect (node: TreeNodeType): void {
       if (this.enableLeafOnly && !node.isLeaf) return
       this.nonReactive.store.setSelected(node[this.keyField], !node.selected)
     },
-    handleNodeExpand (node: TreeNode): void {
+    handleNodeExpand (node: TreeNodeType): void {
       this.updateBeforeExpand(node)
       this.nonReactive.store.setExpand(node[this.keyField], !node.expand)
     },
-    handleNodeDrop (data: TreeNode, e: DragEvent, hoverPart: dragHoverPartEnum): void {
+    handleNodeDrop (data: TreeNodeType, e: DragEvent, hoverPart: dragHoverPartEnum): void {
       if (!this.droppable) return
       if (e.dataTransfer) {
         try {
@@ -819,7 +819,7 @@ export default (Vue as VueConstructor<Vue & {
             else if (hoverPart === dragHoverPartEnum.after) this.nonReactive.store.insertAfter(targetKey, referenceKey)
             this.$emit('node-drop', data, e, hoverPart, this.getNode(targetKey))
           }
-        } catch (err) {
+        } catch (err: any) {
           throw new Error(err)
         }
       }
@@ -829,7 +829,7 @@ export default (Vue as VueConstructor<Vue & {
     /**
      * 触发多选 input 事件
      */
-    emitCheckableInput (checkedNodes: TreeNode[], checkedKeys: TreeNodeKeyType[]): void {
+    emitCheckableInput (checkedNodes: TreeNodeType[], checkedKeys: TreeNodeKeyType[]): void {
       if (this.checkable) {
         // 多选
         let emitValue: TreeNodeKeyType[] | string = checkedKeys
@@ -848,7 +848,7 @@ export default (Vue as VueConstructor<Vue & {
     /**
      * 触发单选 input 事件
      */
-    emitSelectableInput (selectedNode: TreeNode | null, selectedKey: TreeNodeKeyType | null): void {
+    emitSelectableInput (selectedNode: TreeNodeType | null, selectedKey: TreeNodeKeyType | null): void {
       if (this.selectable && !this.checkable) {
         // 单选
         const emitValue: TreeNodeKeyType = selectedKey ? selectedKey : ''
@@ -955,7 +955,7 @@ export default (Vue as VueConstructor<Vue & {
 
     updateMiddleNodes (): void {
       const nodeToExpandLevel = this.expandAnimation.level
-      const middleNodes: TreeNode[] = []
+      const middleNodes: TreeNodeType[] = []
       const renderNodesLength = this.renderNodes.length
       for (let i = this.expandAnimation.index + 1; i < renderNodesLength; i++) {
         if (this.renderNodes[i]._level > nodeToExpandLevel) {
@@ -965,7 +965,7 @@ export default (Vue as VueConstructor<Vue & {
       this.expandAnimation.middleNodes = middleNodes
     },
 
-    updateBeforeExpand (nodeToExpand: TreeNode): void {
+    updateBeforeExpand (nodeToExpand: TreeNodeType): void {
       if (!this.animation) return
       this.resetExpandAnimation()
 
@@ -1038,7 +1038,7 @@ export default (Vue as VueConstructor<Vue & {
     this.nonReactive.store.on('expand', this.updateAfterExpand)
     this.nonReactive.store.on('visible-data-change', this.updateBlockNodes)
     this.nonReactive.store.on('render-data-change', this.updateRender)
-    this.nonReactive.store.on('checked-change', (checkedNodes: TreeNode[], checkedKeys: TreeNodeKeyType[]) => {
+    this.nonReactive.store.on('checked-change', (checkedNodes: TreeNodeType[], checkedKeys: TreeNodeKeyType[]) => {
       this.emitCheckableInput(checkedNodes, checkedKeys)
       this.updateUnloadStatus()
     })
