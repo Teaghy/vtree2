@@ -1,7 +1,7 @@
 <template>
   <div class="container">
     <div class="tree">
-      <CTree ref="tree" :data="treeData" checkable selectable></CTree>
+      <CTree ref="tree" draggable droppable :data="treeData" selectable></CTree>
     </div>
     <div class="control">
       <div class="desc-block">

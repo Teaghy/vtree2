@@ -1,21 +1,6 @@
 <template>
   <div class="app">
-    132123
-    <comp></comp>
     <Performance></Performance>
-    <!-- <div class="tab">
-      <button
-        v-for="tab in tabList"
-        :key="tab"
-        :class="{
-          active: currentTab === tab
-        }"
-        @click="currentTab = tab"
-      >{{ tab }}</button>
-    </div>
-    <div class="tab-panel">
-      <component :is="currentTab"></component>
-    </div> -->
   </div>
 </template>
 

@@ -839,30 +839,25 @@ export default (
       this.debounceTimer = window.requestAnimationFrame(this.updateRenderNodes.bind(this, true));
       // this.updateRenderNodes(true)
     },
+    initializeNonReactiveData (): void {
+      const { keyField, ignoreMode, filteredNodeCheckable, cascade, defaultExpandAll, load, expandOnFilter } = this
+      this.nonReactive = {
+        store: new TreeStore({
+          keyField,
+          ignoreMode,
+          filteredNodeCheckable,
+          cascade,
+          defaultExpandAll,
+          load,
+          expandOnFilter,
+        }),
+        blockNodes: [],
+      }
+    },
   },
   created() {
     // Initial non-reactive
-    const {
-      keyField,
-      ignoreMode,
-      filteredNodeCheckable,
-      cascade,
-      defaultExpandAll,
-      load,
-      expandOnFilter,
-    } = this;
-    this.nonReactive = {
-      store: new TreeStore({
-        keyField,
-        ignoreMode,
-        filteredNodeCheckable,
-        cascade,
-        defaultExpandAll,
-        load,
-        expandOnFilter,
-      }),
-      blockNodes: [],
-    };
+    this.initializeNonReactiveData();
 
     this.nonReactive.store.on('visible-data-change', this.updateBlockNodes);
     this.nonReactive.store.on('render-data-change', this.updateRender);
@@ -897,6 +892,7 @@ export default (
     if ($iframe.contentWindow) {
       $iframe.contentWindow.removeEventListener('resize', this.updateRender);
     }
+    this.initializeNonReactiveData()
   },
   watch: {
     value(newVal: VModelType) {
