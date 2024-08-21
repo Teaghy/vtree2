@@ -344,12 +344,12 @@ export default (Vue as VueConstructor<Vue & {
       this.$emit('check', this.fullData)
     },
 
-    handleSelect (): void {
-      this.$emit('click', this.fullData)
+    handleSelect (e: MouseEvent): void {
+      this.$emit('click', this.fullData, e)
       if (this.selectable) {
         if (this.disableAll || this.data.disabled) return
         if (this.data.selected && !this.unselectOnClick) return
-        this.$emit('select', this.fullData)
+        this.$emit('select', this.fullData, e)
       } else if (this.checkable) {
         this.handleCheck()
       } else {
@@ -357,12 +357,12 @@ export default (Vue as VueConstructor<Vue & {
       }
     },
 
-    handleDblclick (): void {
-      this.$emit('node-dblclick', this.fullData)
+    handleDblclick (e: MouseEvent): void {
+      this.$emit('node-dblclick', this.fullData, e)
     },
 
-    handleRightClick (): void {
-      this.$emit('node-right-click', this.fullData)
+    handleRightClick (e: MouseEvent): void {
+      this.$emit('node-right-click', this.fullData, e)
     },
 
     //#region Drag handlers
