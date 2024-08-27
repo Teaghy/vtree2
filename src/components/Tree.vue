@@ -184,6 +184,10 @@ export default (Vue as VueConstructor<Vue & {
     CTreeNode,
     LoadingIcon,
   },
+  model: {
+    prop: 'checkedKeys',
+    event: 'check',
+  },
   props: {
     /** 单选模式下为字符串或数字，多选模式下为数组或者以 separator 分隔的字符串。当即可单选又可多选时，value 是多选的值 */
     // value: [
@@ -191,6 +195,10 @@ export default (Vue as VueConstructor<Vue & {
     //   Number,
     //   Array as () => TreeNodeKeyType[],
     // ],
+    checkedKeys: {
+      type: Array as () => TreeNodeKeyType[],
+      default: () => [],
+    },
 
     /** 传入的树数据。数据量大时，不建议通过 props 传入数据，建议用 `setData` 方法代替 */
     data: {
@@ -198,16 +206,13 @@ export default (Vue as VueConstructor<Vue & {
       default: () => [],
     },
 
+
     /** 传入的树数据。数据量大时，不建议通过 props 传入数据，建议用 `setData` 方法代替 */
     selectedKeys: {
       type: Array as () => TreeNodeKeyType[],
       default: () => [],
     },
 
-    checkedKeys: {
-      type: Array as () => TreeNodeKeyType[],
-      default: () => [],
-    },
 
     /** 供未加载且选中节点查询 title 字段值用的列表，格式与 `data` 一致即可 */
     unloadDataList: {
@@ -854,7 +859,7 @@ export default (Vue as VueConstructor<Vue & {
         // 多选
         // let emitValue: TreeNodeKeyType[] | string = checkedKeys
 
-        this.$emit('update:checked-keys', checkedKeys)
+        this.$emit('check', checkedKeys)
       }
     },
 
