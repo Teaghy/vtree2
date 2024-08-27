@@ -115,9 +115,9 @@ export default (Vue as VueConstructor<Vue & {
     /** 节点渲染 render 函数 */
     render: Function as any as () => (h: CreateElement, node: TreeNode) => VNode,
 
-    /** 是否可多选 */
+    /** 是否显示选择框 */
     checkable: Boolean,
-
+    
     /** 是否可单选 */
     selectable: Boolean,
 

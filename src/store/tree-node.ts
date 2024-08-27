@@ -28,11 +28,11 @@ export default class TreeNode {
   /** 节点层级 */
   _level: number = 0
 
-  /** 多选是否选中 */
-  checked: boolean = false
+  // /** 多选是否选中 */
+  // checked: boolean = false
 
-  /** 单选是否选中 */
-  selected: boolean = false
+  // /** 单选是否选中 */
+  // selected: boolean = false
 
   /** 是否半选状态 */
   indeterminate: boolean = false

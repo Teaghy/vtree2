@@ -32,7 +32,7 @@ export interface IEventNames {
   'expand': NodeGeneralListenerType,
   'select': NodeGeneralListenerType,
   'unselect': NodeGeneralListenerType,
-  'selected-change': (node: TreeNode | null, key: TreeNodeKeyType | null) => void,
+  'selected-change': (node: TreeNode[] | null, key: TreeNodeKeyType[] | null) => void,
   'check': NodeGeneralListenerType,
   'uncheck': NodeGeneralListenerType,
   'checked-change': (nodes: TreeNode[], keys: TreeNodeKeyType[]) => void,
@@ -66,10 +66,10 @@ export default class TreeStore {
   private unloadCheckedKeys: TreeNodeKeyType[] = []
 
   /** 未加载但选中的单选节点 key */
-  private unloadSelectedKey: TreeNodeKeyType | null = null
+  private unloadSelectedKeys: TreeNodeKeyType[] | null = null
 
-  /** 当前单选选中节点 key */
-  private currentSelectedKey: TreeNodeKeyType | null = null
+  /** 当前选中节点 keys */
+  private currentSelectedKeys: TreeNodeKeyType[] | null = null
 
   /** 事件 listeners */
   private listenersMap: IListenersMap = {}
@@ -92,16 +92,16 @@ export default class TreeStore {
     this.data = data.map((nodeData: ITreeNodeOptions): TreeNode => new TreeNode(nodeData, null, this.options.keyField, !!this.options.load))
     // 清空 mapData
     for (let key in this.mapData) delete this.mapData[key]
-    // 扁平化之前清空单选选中，如果 value 有值，则是 selectableUnloadKey 有值，会重新设置 currentSelectedKey ；多选选中没有存储在 store 中，因此不必事先清空。
-    this.currentSelectedKey = null
+    // 扁平化之前清空单选选中，如果 value 有值，则是 selectableUnloadKey 有值，会重新设置 currentSelectedKeys ；多选选中没有存储在 store 中，因此不必事先清空。
+    this.currentSelectedKeys = null
     // 扁平化节点数据
     this.flatData = this.flattenData(this.data)
     // 更新未载入多选选中节点
     this.setUnloadCheckedKeys(checkableUnloadKeys || [])
     if (selectableUnloadKey) {
       // 更新未载入单选选中节点
-      this.currentSelectedKey = null
-      this.setUnloadSelectedKey(selectableUnloadKey)
+      this.currentSelectedKeys = null
+      this.setUnloadSelectedKeys(selectableUnloadKey)
     }
     this.emit('visible-data-change')
     this.emit('set-data')
@@ -244,29 +244,39 @@ export default class TreeStore {
    * @param value 是否选中
    * @param triggerEvent 是否触发事件
    */
-  setSelected (key: TreeNodeKeyType, value: boolean, triggerEvent: boolean = true, triggerDataChange: boolean = true): void {
+  setSelected (key: TreeNodeKeyType, value: boolean, triggerEvent: boolean = true, triggerDataChange: boolean = true, isMultiple: boolean = false): void {
     const node = this.mapData[key]
-    if (!node) return this.setUnloadSelected(key, value, triggerEvent, triggerDataChange)
+    if (!node) return this.setUnloadSelected(key, value, triggerEvent, triggerDataChange, isMultiple)
     if (node.disabled) return
 
     if (node.selected === value) return // 当前节点已经是将要设置的状态，直接返回
 
-    if (key === this.currentSelectedKey) { // 设置的节点即当前已选中节点
+    if (this.currentSelectedKeys?.includes(key)) { // 设置的节点即当前已选中节点
       if (!value) { // 取消当前选中节点
         node.selected = value
-        this.currentSelectedKey = null
+        this.currentSelectedKeys = this.currentSelectedKeys.filter(item => item !== key)
       }
     } else { // 设置的节点不是当前已选中节点，要么当前没有选中节点，要么当前有选中节点
       if (value) {
-        if (this.currentSelectedKey === null) { // 当前没有选中节点
+        if (this.currentSelectedKeys === null) { // 当前没有选中节点
           node.selected = value
-          this.currentSelectedKey = node[this.options.keyField]
-        } else { // 取消当前已选中，设置新的选中节点
-          if (this.mapData[this.currentSelectedKey]) {
-            this.mapData[this.currentSelectedKey].selected = false
+          this.currentSelectedKeys = [node[this.options.keyField]]
+        } else { 
+          if (isMultiple) {
+            // 多选不需要让其他节点的select状态变化
+            node.selected = value
+            this.currentSelectedKeys.push(node[this.options.keyField])
+          } else {
+            // 单选需要取消其它选中
+            this.currentSelectedKeys.forEach(itemKey => {
+              if (this.mapData[itemKey]) {
+                this.mapData[itemKey].selected = false
+              }
+            });
+            node.selected = value
+            this.currentSelectedKeys = [node[this.options.keyField]]
           }
-          node.selected = value
-          this.currentSelectedKey = node[this.options.keyField]
+         
         }
       }
     }
@@ -287,17 +297,50 @@ export default class TreeStore {
   }
 
   /**
+   * 设置多选选中
+   * @param keys 选中节点 key
+   * @param triggerEvent 是否触发事件
+   */
+  setSelectedKeys (keys: TreeNodeKeyType[], triggerEvent: boolean = true, triggerDataChange: boolean = true): void {
+    keys.forEach((key) => {
+      this.setSelected(key, true, false, false, true)
+    })
+
+    this.triggerSelectChange(triggerEvent, triggerDataChange)
+  }
+
+  /**
+   * 触发 selected-change 的快捷方法
+   * @param triggerEvent 是否触发事件
+   * @param triggerDataChange 是否触发视图刷新
+   */
+  private triggerSelectChange (triggerEvent: boolean = true, triggerDataChange: boolean = true) {
+    if (triggerEvent) {
+      this.emit('selected-change', this.getSelectedNode(), this.getSelectedKey())
+    }
+
+    if (triggerDataChange) {
+      this.emit('render-data-change')
+    }
+  }
+
+  /**
    * 设置未加载单选选中节点，不公开此 API
    */
-  private setUnloadSelected (key: TreeNodeKeyType, value: boolean, triggerEvent: boolean = true, triggerDataChange: boolean = true): void {
+  private setUnloadSelected (key: TreeNodeKeyType, value: boolean, triggerEvent: boolean = true, triggerDataChange: boolean = true, isMultiple: boolean = false): void {
     if (value) {
-      if (this.currentSelectedKey) {
-        this.setSelected(this.currentSelectedKey, false, false, false)
+      // if (this.currentSelectedKeys) {
+      //   this.setSelected(this.currentSelectedKey, false, false, false)
+      // }
+      if (isMultiple) {
+        this.unloadSelectedKeys?.push(key);
+      } else {
+        this.unloadSelectedKeys = [key];
       }
-      this.unloadSelectedKey = key
+      
     } else {
-      if (this.unloadSelectedKey === key) {
-        this.unloadSelectedKey = null
+      if (this.unloadSelectedKeys?.includes(key)) {
+        this.unloadSelectedKeys = this.unloadSelectedKeys.filter(itemKey => itemKey !== key);
       }
     }
 
@@ -316,10 +359,24 @@ export default class TreeStore {
    * @param triggerDataChange 是否触发视图刷新
    */
   clearSelected (triggerEvent: boolean = true, triggerDataChange: boolean = true): void {
-    if (this.currentSelectedKey && this.mapData[this.currentSelectedKey]) {
-      this.setSelected(this.currentSelectedKey, false, triggerEvent, triggerDataChange)
-    } else if (this.unloadSelectedKey !== null) {
-      this.unloadSelectedKey = null
+    // const currentCheckedNodes = this.getCheckedNodes()
+    // currentCheckedNodes.forEach((checkedNode) => {
+    //   this.setChecked(checkedNode[this.options.keyField], false, false, false)
+    // })
+    // // 清空未加载多选选中节点
+    // this.unloadCheckedKeys = []
+
+    // this.triggerCheckedChange(triggerEvent, triggerDataChange)
+    
+    if (this.currentSelectedKeys) {
+      this.currentSelectedKeys.forEach(itemKey => {
+        if (this.mapData[itemKey]) {
+          this.setSelected(itemKey, false, triggerEvent, triggerDataChange)
+        }
+      })
+    } else if (this.unloadSelectedKeys !== null) {
+      // Todo
+      this.unloadSelectedKeys = null
 
       if (triggerEvent) {
         this.emit('selected-change', this.getSelectedNode(), this.getSelectedKey())
@@ -369,8 +426,8 @@ export default class TreeStore {
               this.insertIntoFlatData(parentIndex + 1, flattenChildren)
               // 如果有未加载的选中节点，判断其是否已加载
               this.setUnloadCheckedKeys(currentCheckedKeys)
-              if (this.unloadSelectedKey !== null) {
-                this.setUnloadSelectedKey(this.unloadSelectedKey)
+              if (this.unloadSelectedKeys !== null) {
+                this.setUnloadSelectedKeys(this.unloadSelectedKeys)
               }
               this.emit('set-data')
             }
@@ -503,16 +560,17 @@ export default class TreeStore {
   /**
    * 获取当前单选选中节点
    */
-  getSelectedNode (): TreeNode | null {
-    if (this.currentSelectedKey === null) return null
-    return this.mapData[this.currentSelectedKey] || null
+  getSelectedNode (): TreeNode[] | null {
+    if (this.currentSelectedKeys === null) return null;
+    const nodesList = this.currentSelectedKeys.map(itemKey => this.mapData[itemKey] || null);
+    return nodesList || null
   }
 
   /**
-   * 获取当前单选选中节点 key ，有可能是未加载的选中项
+   * 获取当前单选选中节点 key ，有可能是未加载的选中项 Todo
    */
-  getSelectedKey (): TreeNodeKeyType | null {
-    return this.currentSelectedKey || this.unloadSelectedKey || null
+  getSelectedKey (): TreeNodeKeyType[] | null  {
+    return this.currentSelectedKeys || this.unloadSelectedKeys || null
   }
 
   /**
@@ -831,18 +889,21 @@ export default class TreeStore {
    * 过滤未加载单选选中节点，对比是否有变化并触发 selected-change 事件
    * @param key 节点 key
    */
-  private setUnloadSelectedKey (key: TreeNodeKeyType): void {
-    const selectedKeyCache = this.getSelectedKey()
-    if (this.mapData[key]) { // 如果节点已加载
-      this.setSelected(key, true, false)
-      this.unloadSelectedKey = null
-    } else { // 节点未加载
-      this.currentSelectedKey && this.setSelected(this.currentSelectedKey, false, false)
-      this.unloadSelectedKey = key
+  private setUnloadSelectedKeys (keys: TreeNodeKeyType[]): void {
+    this.unloadSelectedKeys = keys;
+    const selectedKeysCache = keys.concat();
+    const length = this.unloadSelectedKeys.length;
+
+    for (let i = length - 1; i >= 0; i--) {
+      const key = this.unloadSelectedKeys[i]
+      if (this.mapData[key]) {
+        this.setSelected(key, true, false, false)
+        this.unloadSelectedKeys.splice(i, 1)
+      }
     }
 
-    const newSelectedKey = this.getSelectedKey()
-    if (newSelectedKey === selectedKeyCache) return
+    const newSelectedKey = this.getSelectedKey();
+    if (newSelectedKey === selectedKeysCache) return
     this.emit('selected-change', this.getSelectedNode(), newSelectedKey)
   }
 
@@ -871,9 +932,10 @@ export default class TreeStore {
       }
 
       if (node.selected && overrideSelected) {
-        this.clearSelected(false, false)
-        this.currentSelectedKey = node[this.options.keyField]
-        this.emit('selected-change', node, this.currentSelectedKey)
+        // this.clearSelected(false, false)
+        this.currentSelectedKeys?.push(node[this.options.keyField])
+        // todo
+        // this.emit('selected-change', node, this.currentSelectedKey)
       }
 
       if ((this.options.defaultExpandAll || node.expand) && !this.options.load && !node.isLeaf) {

@@ -8,6 +8,8 @@
           <div style="height: 300px;">
             <CTree
               :data="basicUsage"
+              multiple
+              selectable
               :nodeClassName="(node) => `generated-class-${node.id}`"
               animation
             />

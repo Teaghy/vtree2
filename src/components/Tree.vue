@@ -234,7 +234,7 @@ export default (Vue as VueConstructor<Vue & {
       default: ',',
     },
 
-    /** 是否可多选 */
+    /** 是否显示选择框 */
     checkable: {
       type: Boolean,
       default: false,
@@ -242,6 +242,12 @@ export default (Vue as VueConstructor<Vue & {
 
     /** 是否可单选 */
     selectable: {
+      type: Boolean,
+      default: false,
+    },
+
+    /** 是否可单选 */
+    multiple: {
       type: Boolean,
       default: false,
     },
@@ -612,7 +618,11 @@ export default (Vue as VueConstructor<Vue & {
       this.nonReactive.store.clearChecked()
     },
     setSelected (key: TreeNodeKeyType, value: boolean): void {
-      this.nonReactive.store.setSelected(key, value)
+      this.nonReactive.store.setSelected(key, value, true, true, this.multiple)
+    },
+    setSelectedKeys (keys: TreeNodeKeyType[], value: boolean): void {
+      if (!this.multiple) return;
+      this.nonReactive.store.setSelectedKeys(keys, value)
     },
     clearSelected (): void {
       this.nonReactive.store.clearSelected()
@@ -637,10 +647,10 @@ export default (Vue as VueConstructor<Vue & {
     getIndeterminateNodes (): TreeNodeType[] {
       return this.nonReactive.store.getIndeterminateNodes()
     },
-    getSelectedNode (): TreeNodeType | null {
+    getSelectedNode (): TreeNodeType[] | null {
       return this.nonReactive.store.getSelectedNode()
     },
-    getSelectedKey (): TreeNodeKeyType | null {
+    getSelectedKey (): TreeNodeKeyType[] | null {
       return this.nonReactive.store.getSelectedKey()
     },
     getExpandNodes (): TreeNodeType[] {
@@ -797,7 +807,7 @@ export default (Vue as VueConstructor<Vue & {
     },
     handleNodeSelect (node: TreeNodeType): void {
       if (this.enableLeafOnly && !node.isLeaf) return
-      this.nonReactive.store.setSelected(node[this.keyField], !node.selected)
+      this.nonReactive.store.setSelected(node[this.keyField], !node.selected, true, true, this.multiple)
     },
     handleNodeExpand (node: TreeNodeType): void {
       this.updateBeforeExpand(node)
@@ -846,12 +856,12 @@ export default (Vue as VueConstructor<Vue & {
     },
 
     /**
-     * 触发单选 input 事件
+     * 触发选中的input 事件
      */
-    emitSelectableInput (selectedNode: TreeNodeType | null, selectedKey: TreeNodeKeyType | null): void {
+    emitSelectableInput (selectedNode: TreeNodeType[] | null, selectedKeys: TreeNodeKeyType[] | null): void {
       if (this.selectable && !this.checkable) {
         // 单选
-        const emitValue: TreeNodeKeyType = selectedKey ? selectedKey : ''
+        const emitValue: TreeNodeKeyType[] = selectedKeys ? selectedKeys : []
         this.valueCache = emitValue
         this.$emit('input', emitValue)
       }
@@ -1090,9 +1100,9 @@ export default (Vue as VueConstructor<Vue & {
         // 单选
         const currentSelected = this.nonReactive.store.getSelectedKey()
         if (newVal !== '' && newVal != null) {
-          this.nonReactive.store.setSelected(newVal as TreeNodeKeyType, true)
+          this.nonReactive.store.setSelected(newVal as TreeNodeKeyType, true, true, true, this.multiple)
         } else if ((newVal === '' || newVal == null) && currentSelected) {
-          this.nonReactive.store.setSelected(currentSelected, false)
+          this.nonReactive.store.setSelected(currentSelected, false, true, true, this.multiple)
         }
       }
     },
