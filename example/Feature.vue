@@ -46,16 +46,17 @@
         <div class="interface">
           <div style="height: 300px;">
             <CTree
-              v-model="selectableValue"
+              :selected-keys.sync="selectedKeys"
               :data="selectable"
+              multiple
               selectable
             ></CTree>
           </div>
         </div>
         <div class="desc">
-          单选模式。设置 selectable 即可<br/>
+          单选模式。设置 selectedKeys 即可<br/>
           v-model: <br/>
-          {{ selectableValue }}
+          {{ selectedKeys }}
         </div>
       </div>
     </div>
@@ -284,6 +285,8 @@ export default {
       selectable: selectableData,
       // selectableValue: selectableData[0].id,
       selectableValue: '',
+
+      selectedKeys: [],
 
       // 多选
       showCheckable: true,

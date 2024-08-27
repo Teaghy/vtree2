@@ -88,7 +88,7 @@ export default class TreeStore {
     this.flatData = this.flatData.slice(0, insertIndex).concat(insertNodes, this.flatData.slice(insertIndex))
   }
 
-  setData (data: ITreeNodeOptions[], selectableUnloadKey: TreeNodeKeyType | null = null, checkableUnloadKeys: TreeNodeKeyType[] | null = null): void {
+  setData (data: ITreeNodeOptions[], selectableUnloadKey: TreeNodeKeyType[] | null = null, checkableUnloadKeys: TreeNodeKeyType[] | null = null): void {
     this.data = data.map((nodeData: ITreeNodeOptions): TreeNode => new TreeNode(nodeData, null, this.options.keyField, !!this.options.load))
     // 清空 mapData
     for (let key in this.mapData) delete this.mapData[key]
@@ -123,8 +123,8 @@ export default class TreeStore {
     if (node.disabled) return
 
     // 首先确定没有变化的情况
-    if (node.checked && value) return // 已经勾选的再次勾选，直接返回
-    if (!node.checked && !node.indeterminate && !value) return // 未勾选且不是半选状态再次设置未勾选，直接返回
+    if (node._checked && value) return // 已经勾选的再次勾选，直接返回
+    if (!node._checked && !node.indeterminate && !value) return // 未勾选且不是半选状态再次设置未勾选，直接返回
 
     if (this.options.cascade) {
       // 向下勾选，包括自身
@@ -132,11 +132,11 @@ export default class TreeStore {
       // 向上勾选父节点直到根节点
       this.checkNodeUpward(node)
     } else {
-      node.checked = value
+      node._checked = value
     }
 
     if (triggerEvent) {
-      if (node.checked) {
+      if (node._checked) {
         this.emit('check', node)
       } else {
         this.emit('uncheck', node)
@@ -249,31 +249,31 @@ export default class TreeStore {
     if (!node) return this.setUnloadSelected(key, value, triggerEvent, triggerDataChange, isMultiple)
     if (node.disabled) return
 
-    if (node.selected === value) return // 当前节点已经是将要设置的状态，直接返回
+    if (node._selected === value) return // 当前节点已经是将要设置的状态，直接返回
 
     if (this.currentSelectedKeys?.includes(key)) { // 设置的节点即当前已选中节点
       if (!value) { // 取消当前选中节点
-        node.selected = value
+        node._selected = value
         this.currentSelectedKeys = this.currentSelectedKeys.filter(item => item !== key)
       }
     } else { // 设置的节点不是当前已选中节点，要么当前没有选中节点，要么当前有选中节点
       if (value) {
         if (this.currentSelectedKeys === null) { // 当前没有选中节点
-          node.selected = value
+          node._selected = value
           this.currentSelectedKeys = [node[this.options.keyField]]
         } else { 
           if (isMultiple) {
             // 多选不需要让其他节点的select状态变化
-            node.selected = value
+            node._selected = value
             this.currentSelectedKeys.push(node[this.options.keyField])
           } else {
             // 单选需要取消其它选中
             this.currentSelectedKeys.forEach(itemKey => {
               if (this.mapData[itemKey]) {
-                this.mapData[itemKey].selected = false
+                this.mapData[itemKey]._selected = false
               }
             });
-            node.selected = value
+            node._selected = value
             this.currentSelectedKeys = [node[this.options.keyField]]
           }
          
@@ -282,7 +282,7 @@ export default class TreeStore {
     }
 
     if (triggerEvent) {
-      if (node.selected) {
+      if (node._selected) {
         this.emit('select', node)
       } else {
         this.emit('unselect', node)
@@ -422,7 +422,7 @@ export default class TreeStore {
               node.setChildren(children)
               // 如果单选选中的值为空，则允许后续数据覆盖单选 value
               const currentCheckedKeys = this.getCheckedKeys()
-              const flattenChildren = this.flattenData(node.children, this.getSelectedKey === null)
+              const flattenChildren = this.flattenData(node.children)
               this.insertIntoFlatData(parentIndex + 1, flattenChildren)
               // 如果有未加载的选中节点，判断其是否已加载
               this.setUnloadCheckedKeys(currentCheckedKeys)
@@ -525,7 +525,7 @@ export default class TreeStore {
       const result: TreeNode[] = []
       const traversal = (nodes: TreeNode[]) => {
         nodes.forEach((node) => {
-          if (node.checked) {
+          if (node._checked) {
             result.push(node)
           } else if (!node.isLeaf && node.indeterminate) {
             traversal(node.children)
@@ -536,8 +536,8 @@ export default class TreeStore {
       return result
     } else {
       return this.flatData.filter((node) => {
-        if (ignoreMode === ignoreEnum.parents) return node.checked && node.isLeaf
-        return node.checked
+        if (ignoreMode === ignoreEnum.parents) return node._checked && node.isLeaf
+        return node._checked
       })
     }
   }
@@ -819,7 +819,7 @@ export default class TreeStore {
     this.checkNodeUpward(movingNode)
     this.triggerCheckedChange()
     // 处理单选
-    if (movingNode.selected) {
+    if (movingNode._selected) {
       this.setSelected(movingNode[this.options.keyField], true)
     }
   }
@@ -912,7 +912,7 @@ export default class TreeStore {
    * @param nodes 树状节点数据
    * @param overrideSelected 是否根据数据设置 `selected`
    */
-  private flattenData (nodes: TreeNode[], overrideSelected: boolean = true, result: TreeNode[] = []): TreeNode[] {
+  private flattenData (nodes: TreeNode[], result: TreeNode[] = []): TreeNode[] {
     const length = nodes.length
     for (let i = 0; i < length; i++) {
       const node = nodes[i]
@@ -923,20 +923,20 @@ export default class TreeStore {
       }
       this.mapData[key] = node
 
-      // 如果数据上就是选中的，则更新节点状态
-      if (node.checked && this.options.cascade) {
-        // 向下勾选，包括自身
-        this.checkNodeDownward(node, true)
-        // 向上勾选父节点直到根节点
-        this.checkNodeUpward(node)
-      }
+      // // 如果数据上就是选中的，则更新节点状态   ----去除节点中的select选项
+      // if (node.checked && this.options.cascade) {
+      //   // 向下勾选，包括自身
+      //   this.checkNodeDownward(node, true)
+      //   // 向上勾选父节点直到根节点
+      //   this.checkNodeUpward(node)
+      // }
 
-      if (node.selected && overrideSelected) {
-        // this.clearSelected(false, false)
-        this.currentSelectedKeys?.push(node[this.options.keyField])
-        // todo
-        // this.emit('selected-change', node, this.currentSelectedKey)
-      }
+      // if (node.selected && overrideSelected) {
+      //   // this.clearSelected(false, false)
+      //   this.currentSelectedKeys?.push(node[this.options.keyField])
+      //   // todo
+      //   // this.emit('selected-change', node, this.currentSelectedKey)
+      // }
 
       if ((this.options.defaultExpandAll || node.expand) && !this.options.load && !node.isLeaf) {
         node.expand = false
@@ -944,7 +944,7 @@ export default class TreeStore {
       }
 
       if (node.children.length) {
-        this.flattenData(node.children, overrideSelected, result)
+        this.flattenData(node.children, result)
       }
     }
     return result
@@ -966,7 +966,7 @@ export default class TreeStore {
       if (!node.disabled) {
         // 正在过滤，若被过滤节点不可勾选，且节点过滤后不可见，则直接返回
         if (filtering && !this.options.filteredNodeCheckable && !node._filterVisible) return
-        node.checked = value
+        node._checked = value
         node.indeterminate = false
       }
     } else {
@@ -998,20 +998,20 @@ export default class TreeStore {
     let isInterrupted = false
     for (let i = 0; i < length; i++) {
       const child = node.children[i]
-      if (child.checked) {
+      if (child._checked) {
         hasChecked = true
       } else {
         hasUnchecked = true
       }
       if ((hasChecked && hasUnchecked) || child.indeterminate) {
         isInterrupted = true
-        node.checked = false
+        node._checked = false
         node.indeterminate = true
         break
       }
     }
     if (!isInterrupted) {
-      node.checked = hasChecked
+      node._checked = hasChecked
       node.indeterminate = false
     }
   }

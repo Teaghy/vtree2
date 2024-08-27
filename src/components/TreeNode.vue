@@ -228,7 +228,7 @@ export default (Vue as VueConstructor<Vue & {
       return [
         `${prefixCls}__checkbox`,
         {
-          [`${prefixCls}__checkbox_checked`]: this.data.checked,
+          [`${prefixCls}__checkbox_checked`]: this.data._checked,
           [`${prefixCls}__checkbox_indeterminate`]: this.data.indeterminate,
           [`${prefixCls}__checkbox_disabled`]: this.disableAll || this.data.disabled,
         },
@@ -238,7 +238,7 @@ export default (Vue as VueConstructor<Vue & {
       return [
         `${prefixCls}__title`,
         {
-          [`${prefixCls}__title_selected`]: this.data.selected,
+          [`${prefixCls}__title_selected`]: this.data._selected,
           [`${prefixCls}__title_disabled`]: this.disableAll || this.data.disabled,
         },
       ]
@@ -348,7 +348,7 @@ export default (Vue as VueConstructor<Vue & {
       this.$emit('click', this.fullData, e)
       if (this.selectable) {
         if (this.disableAll || this.data.disabled) return
-        if (this.data.selected && !this.unselectOnClick) return
+        if (this.data._selected && !this.unselectOnClick) return
         this.$emit('select', this.fullData, e)
       } else if (this.checkable) {
         this.handleCheck()

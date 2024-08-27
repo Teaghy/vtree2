@@ -186,15 +186,26 @@ export default (Vue as VueConstructor<Vue & {
   },
   props: {
     /** 单选模式下为字符串或数字，多选模式下为数组或者以 separator 分隔的字符串。当即可单选又可多选时，value 是多选的值 */
-    value: [
-      String,
-      Number,
-      Array as () => TreeNodeKeyType[],
-    ],
+    // value: [
+    //   String,
+    //   Number,
+    //   Array as () => TreeNodeKeyType[],
+    // ],
 
     /** 传入的树数据。数据量大时，不建议通过 props 传入数据，建议用 `setData` 方法代替 */
     data: {
       type: Array as () => AnyPropsArrayType,
+      default: () => [],
+    },
+
+    /** 传入的树数据。数据量大时，不建议通过 props 传入数据，建议用 `setData` 方法代替 */
+    selectedKeys: {
+      type: Array as () => TreeNodeKeyType[],
+      default: () => [],
+    },
+
+    checkedKeys: {
+      type: Array as () => TreeNodeKeyType[],
       default: () => [],
     },
 
@@ -229,10 +240,10 @@ export default (Vue as VueConstructor<Vue & {
     },
 
     /** 多选模式下 value 分隔符 */
-    separator: {
-      type: String,
-      default: ',',
-    },
+    // separator: {
+    //   type: String,
+    //   default: ',',
+    // },
 
     /** 是否显示选择框 */
     checkable: {
@@ -416,7 +427,8 @@ export default (Vue as VueConstructor<Vue & {
     },
   },
   data () {
-    const valueCache = Array.isArray(this.value) ? this.value.concat() : this.value
+    // const valueCache = Array.isArray(this.value) ? this.value.concat() : this.value
+    const valueCache = Array.isArray(this.selectedKeys) ? this.selectedKeys.concat() : this.selectedKeys
     return {
       /** 未加载选中的节点，展示已选时生成，其他情况下没用 */
       unloadCheckedNodes: ([] as TreeNodeType[]),
@@ -591,16 +603,14 @@ export default (Vue as VueConstructor<Vue & {
     /** 使用此方法重置树数据，可避免大量数据被 vue 监听 */
     setData (data: AnyPropsArrayType): void {
       this.resetSpaceHeights()
-      let checkableUnloadKeys: TreeNodeKeyType | TreeNodeKeyType[] | null = null
-      let selectableUnloadKey: TreeNodeKeyType | null = null
+      let checkableUnloadKeys: TreeNodeKeyType[] | null = null
+      let selectableUnloadKey: TreeNodeKeyType[] | null = null
       if (this.checkable) {
-        if (Array.isArray(this.value)) {
-          checkableUnloadKeys = this.value.concat()
-        } else if (typeof this.value === 'string') {
-          checkableUnloadKeys = this.value === '' ? [] : this.value.split(this.separator)
-        }
-      } else if (this.selectable && !Array.isArray(this.value)) {
-        selectableUnloadKey = this.value
+          checkableUnloadKeys = this.checkedKeys.concat()
+      } 
+
+      if (this.selectedKeys.length) {
+        selectableUnloadKey = this.selectedKeys.concat();
       }
       this.nonReactive.store.setData(data, selectableUnloadKey, checkableUnloadKeys as TreeNodeKeyType[])
       this.updateExpandedKeys()
@@ -710,7 +720,7 @@ export default (Vue as VueConstructor<Vue & {
       if (!this.checkable) return
       showUnloadCheckedNodes = showUnloadCheckedNodes == null ? this.showUnloadCheckedNodes : showUnloadCheckedNodes
       const checkedNodesCache = this.nonReactive.store.getCheckedNodes()
-      this.nonReactive.store.filter('', (keyword, node) => node.checked)
+      this.nonReactive.store.filter('', (keyword, node) => node._checked)
       if (!showUnloadCheckedNodes) return
       const unloadKeys = this.nonReactive.store.getUnloadCheckedKeys()
       if (unloadKeys.length) {
@@ -795,7 +805,7 @@ export default (Vue as VueConstructor<Vue & {
       if (this.unloadCheckedNodes.length) {
         const unloadKeys = this.nonReactive.store.getUnloadCheckedKeys()
         this.unloadCheckedNodes.forEach((node) => {
-          node.checked = unloadKeys.indexOf(node[this.keyField]) > -1
+          node._checked = unloadKeys.indexOf(node[this.keyField]) > -1
         })
       }
     },
@@ -803,11 +813,11 @@ export default (Vue as VueConstructor<Vue & {
     //#region Handle node events
     handleNodeCheck (node: TreeNodeType): void {
       if (!this.cascade && this.enableLeafOnly && !node.isLeaf) return
-      this.nonReactive.store.setChecked(node[this.keyField], node.indeterminate ? false : !node.checked, true, true, true)
+      this.nonReactive.store.setChecked(node[this.keyField], node.indeterminate ? false : !node._checked, true, true, true)
     },
     handleNodeSelect (node: TreeNodeType): void {
       if (this.enableLeafOnly && !node.isLeaf) return
-      this.nonReactive.store.setSelected(node[this.keyField], !node.selected, true, true, this.multiple)
+      this.nonReactive.store.setSelected(node[this.keyField], !node._selected, true, true, this.multiple)
     },
     handleNodeExpand (node: TreeNodeType): void {
       this.updateBeforeExpand(node)
@@ -842,16 +852,9 @@ export default (Vue as VueConstructor<Vue & {
     emitCheckableInput (checkedNodes: TreeNodeType[], checkedKeys: TreeNodeKeyType[]): void {
       if (this.checkable) {
         // 多选
-        let emitValue: TreeNodeKeyType[] | string = checkedKeys
-        if (!Array.isArray(this.value)) {
-          emitValue = emitValue.join(this.separator)
-        }
-        if (Array.isArray(emitValue)) {
-          this.valueCache = emitValue.concat()
-        } else {
-          this.valueCache = emitValue
-        }
-        this.$emit('input', emitValue)
+        // let emitValue: TreeNodeKeyType[] | string = checkedKeys
+
+        this.$emit('update:checked-keys', checkedKeys)
       }
     },
 
@@ -863,7 +866,7 @@ export default (Vue as VueConstructor<Vue & {
         // 单选
         const emitValue: TreeNodeKeyType[] = selectedKeys ? selectedKeys : []
         this.valueCache = emitValue
-        this.$emit('input', emitValue)
+        this.$emit('update:selected-keys', emitValue)
       }
     },
 
@@ -1079,33 +1082,46 @@ export default (Vue as VueConstructor<Vue & {
     this.initializeNonReactiveData()
   },
   watch: {
-    value (newVal: VModelType) {
-      if (this.checkable) {
-        // 检查是否由 input 事件触发
-        if (sameValue(newVal, this.valueCache)) return
-
-        // 多选
-        let checkedKeys: TreeNodeKeyType[] = []
-        if (Array.isArray(newVal)) {
-          checkedKeys = newVal.concat()
-        } else if (typeof newVal === 'string') {
-          checkedKeys = newVal === '' ? [] : (newVal as string).split(this.separator)
-        }
-        this.nonReactive.store.clearChecked(false, false)
-        this.nonReactive.store.setCheckedKeys(checkedKeys, true)
-      } else if (this.selectable) {
-        // 检查是否由 input 事件触发
-        if (newVal === this.valueCache) return
-
-        // 单选
-        const currentSelected = this.nonReactive.store.getSelectedKey()
-        if (newVal !== '' && newVal != null) {
-          this.nonReactive.store.setSelected(newVal as TreeNodeKeyType, true, true, true, this.multiple)
-        } else if ((newVal === '' || newVal == null) && currentSelected) {
-          this.nonReactive.store.setSelected(currentSelected, false, true, true, this.multiple)
-        }
-      }
+    selectedKeys (newVal: TreeNodeKeyType[], oldValue:  TreeNodeKeyType[]) {
+      // 检查是否由 input 事件触发
+      if (sameValue(newVal, oldValue)) return
+      this.nonReactive.store.clearSelected(false, false);
+      this.nonReactive.store.setSelectedKeys(newVal as TreeNodeKeyType[])
     },
+    checkedKeys (newVal: TreeNodeKeyType[], oldValue:  TreeNodeKeyType[]) {
+       // 检查是否由 input 事件触发
+       if (sameValue(newVal, oldValue)) return
+      this.nonReactive.store.clearChecked(false, false);
+      this.nonReactive.store.setCheckedKeys(newVal, true)
+    },
+
+    // value (newVal: VModelType) {
+    //   if (this.checkable) {
+    //     // 检查是否由 input 事件触发
+    //     if (sameValue(newVal, this.valueCache)) return
+
+    //     // 多选
+    //     let checkedKeys: TreeNodeKeyType[] = []
+    //     if (Array.isArray(newVal)) {
+    //       checkedKeys = newVal.concat()
+    //     } else if (typeof newVal === 'string') {
+    //       checkedKeys = newVal === '' ? [] : (newVal as string).split(this.separator)
+    //     }
+    //     this.nonReactive.store.clearChecked(false, false)
+    //     this.nonReactive.store.setCheckedKeys(checkedKeys, true)
+    //   } else if (this.selectable) {
+    //     // 检查是否由 input 事件触发
+    //     if (newVal === this.valueCache) return
+
+    //     // 单选
+    //     const currentSelected = this.nonReactive.store.getSelectedKey()
+    //     if (newVal !== '' && newVal != null) {
+    //       this.nonReactive.store.setSelected(newVal as TreeNodeKeyType, true, true, true, this.multiple)
+    //     } else if ((newVal === '' || newVal == null) && currentSelected) {
+    //       this.nonReactive.store.setSelected(currentSelected, false, true, true, this.multiple)
+    //     }
+    //   }
+    // },
     data: {
       deep: true,
       handler (newData: AnyPropsArrayType) {
