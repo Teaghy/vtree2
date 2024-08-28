@@ -134,6 +134,7 @@ npm install @teaghy/vtree
 | empty        | 暂无数据                                   |
 | loading      | 加载中显示的图标                               |
 | node `2.4.0` | 自定义节点，slotProps 为 `{ node: TreeNode }` |
+| switcherIcon | 自定义节点的展开/折叠图标 |
 
 ### CTree Data Fields
 

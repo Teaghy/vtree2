@@ -34,13 +34,11 @@
         v-on="dropListeners"
       >
         <!-- 展开按钮 -->
-        <div :class="squareCls">
-          <!-- 外层用于占位，icon 用于点击 -->
-          <i
-            v-show="!data.isLeaf && !data._loading"
-            :class="expandCls"
-            @click="handleExpand"
-          ></i>
+        <div :class="squareCls" @click="handleExpand">
+          <!-- 外层用于占位点击，i标签是默认的图标 -->
+          <slot name="switcherIcon" v-if="!data.isLeaf && !data._loading">
+            <i :class="expandCls"></i>
+          </slot>
           <LoadingIcon
             v-if="data._loading"
             :class="loadingIconCls"
