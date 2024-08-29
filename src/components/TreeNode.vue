@@ -1,7 +1,7 @@
 <template>
   <div :class="indentWrapperCls">
     <template v-if="showLine">
-      <template v-for="(level, index) in data._level">
+      <template v-for="(_, index) in data._level">
         <svg
           viewBox="0 0 100 100"
           preserveAspectRatio="none"

@@ -176,10 +176,10 @@ export default (
         checkedKeys: [] as TreeNodeKeyType[],
 
         /** 单选选中的节点 */
-        selectedNode: null as TreeNode | null,
+        selectedNodes: null as TreeNode[] | null,
 
         /** 单选选中的节点 key */
-        selectedKey: null as TreeNodeKeyType | null,
+        selectedKeys: null as TreeNodeKeyType[] | null,
       },
     };
   },
@@ -375,15 +375,16 @@ export default (
       this.slotProps.checkedKeys = keys;
       this.checkedCount = keys.length;
     },
-    handleSelectedChange(node: TreeNode | null, key: TreeNodeKeyType | null): void {
-      this.slotProps.selectedNode = node;
-      this.slotProps.selectedKey = key;
-
-      if (node) {
+    handleSelectedChange(nodes: TreeNode[] | null, keys: TreeNodeKeyType[] | null): void {
+      this.slotProps.selectedNodes = nodes;
+      this.slotProps.selectedKeys = keys;
+      
+      if (nodes?.length) {
+        const node = nodes[0];
         const titleField = this.$refs.treeSearch.$refs.tree.titleField;
         this.selectedTitle = node[titleField];
-      } else if (key) {
-        this.selectedTitle = key;
+      } else if (keys?.length) {
+        this.selectedTitle = keys[0];
       } else {
         this.selectedTitle = '';
       }
@@ -394,8 +395,8 @@ export default (
     handleSetData(): void {
       this.slotProps.checkedNodes = this.getCheckedNodes();
       this.slotProps.checkedKeys = this.getCheckedKeys();
-      this.slotProps.selectedNode = this.getSelectedNode();
-      this.slotProps.selectedKey = this.getSelectedKey();
+      this.slotProps.selectedNodes = this.getSelectedNode();
+      this.slotProps.selectedKeys = this.getSelectedKey();
 
       if (this.checkable) {
         this.checkedCount = this.slotProps.checkedKeys.length;

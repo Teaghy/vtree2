@@ -20,6 +20,46 @@
         </div>
       </div>
     </div>
+    <!-- CTree Search -->
+    <div class="panel">
+      <div class="header">CTreeDrop基本用法</div>
+      <div class="body">
+        <div class="interface">
+          <div style="height: 300px;">
+            <CTreeDrop
+              :data="basicUsage"
+              multiple
+              selectable
+              :nodeClassName="(node) => `generated-class-${node.id}`"
+              animation
+            />
+          </div>
+        </div>
+        <div class="desc">
+          纯展示
+        </div>
+      </div>
+    </div>
+    <!-- CTree Search -->
+    <div class="panel">
+      <div class="header">CtreeDrop基本用法</div>
+      <div class="body">
+        <div class="interface">
+          <div style="height: 300px;">
+            <CTreeSearch
+              :data="basicUsage"
+              multiple
+              selectable
+              :nodeClassName="(node) => `generated-class-${node.id}`"
+              animation
+            />
+          </div>
+        </div>
+        <div class="desc">
+          纯展示
+        </div>
+      </div>
+    </div>
 
     <!-- 数据正确性验证 -->
     <div class="panel">
@@ -242,6 +282,8 @@
 
 <script>
 import CTree from '@/components/Tree.vue';
+import CTreeSearch from '@/components/TreeSearch.vue';
+import CTreeDrop from '@/components/TreeDrop.vue';
 import '@/styles/index.less';
 import treeDataGenerator from '../tests/tree-data-generator'
 
@@ -265,6 +307,8 @@ export default {
   name: 'Feature',
   components: {
     CTree,
+    CTreeSearch,
+    CTreeDrop
   },
   data () {
     const selectableData = genData().data
