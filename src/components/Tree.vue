@@ -28,8 +28,8 @@
           <template v-slot="slotProps">
             <slot name="node" v-bind="slotProps"></slot>
           </template>
-          <template v-slot:switcherIcon>
-            <slot name="switcherIcon"></slot>
+          <template v-slot:switcherIcon="slotProps">
+            <slot name="switcherIcon" v-bind="slotProps"></slot>
           </template>
         </CTreeNode>
         <template v-if="expandAnimation.ready">
@@ -64,8 +64,8 @@
                   <template v-slot="slotProps">
                     <slot name="node" v-bind="slotProps"></slot>
                   </template>
-                  <template v-slot:switcherIcon>
-                    <slot name="switcherIcon"></slot>
+                  <template v-slot:switcherIcon="slotProps">
+                    <slot name="switcherIcon" v-bind="slotProps"></slot>
                   </template>
                 </CTreeNode>
               </div>
@@ -90,8 +90,8 @@
             <template v-slot="slotProps">
               <slot name="node" v-bind="slotProps"></slot>
             </template>
-            <template v-slot:switcherIcon>
-              <slot name="switcherIcon"></slot>
+            <template v-slot:switcherIcon="slotProps">
+              <slot name="switcherIcon" v-bind="slotProps"></slot>
             </template>
           </CTreeNode>
         </template>

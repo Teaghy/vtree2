@@ -36,7 +36,7 @@
         <!-- 展开按钮 -->
         <div :class="squareCls" @click="handleExpand">
           <!-- 外层用于占位点击，i标签是默认的图标 -->
-          <slot name="switcherIcon" v-if="!data.isLeaf && !data._loading">
+          <slot name="switcherIcon" v-if="!data.isLeaf && !data._loading" :node="fullData">
             <i :class="expandCls"></i>
           </slot>
           <LoadingIcon
