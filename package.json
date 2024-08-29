@@ -1,7 +1,7 @@
 {
   "name": "@teaghy/vtree",
   "private": false,
-  "version": "1.0.0-beta.3",
+  "version": "1.0.0-beta.4",
   "type": "module",
   "files": [
     "dist"
@@ -54,7 +54,6 @@
   },
   "publishConfig": {
     "registry": "https://registry.npmjs.org/",
-    "access": "public",
-    "default": "0.0.10"
+    "access": "public"
   }
 }
