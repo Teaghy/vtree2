@@ -1,7 +1,7 @@
 {
   "name": "@teaghy/vtree",
   "private": false,
-  "version": "1.0.0-beta.4",
+  "version": "1.0.0-beta.5",
   "type": "module",
   "files": [
     "dist"
@@ -28,10 +28,6 @@
     "build:publish": "npm run build && npm exec terser -- -c -m --module dist/virtual-tree.js > dist/virtual-tree.min.js",
     "publish": "npm run build && npm publish"
   },
-  "dependencies": {
-    "@teaghy/vtree": "^0.0.8",
-    "vue": "^2.7.7"
-  },
   "devDependencies": {
     "@rushstack/eslint-patch": "^1.1.0",
     "@types/node": "^16.18.4",
@@ -50,7 +46,8 @@
     "terser": "^5.16.0",
     "typescript": "~4.7.4",
     "vite": "^3.2.0",
-    "vue-tsc": "^0.38.8"
+    "vue-tsc": "^0.38.8",
+    "vue": "^2.7.7"
   },
   "publishConfig": {
     "registry": "https://registry.npmjs.org/",
