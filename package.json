@@ -28,10 +28,6 @@
     "build:publish": "npm run build && npm exec terser -- -c -m --module dist/virtual-tree.js > dist/virtual-tree.min.js",
     "publish": "npm run build && npm publish"
   },
-  "dependencies": {
-    "@teaghy/vtree": "^0.0.8",
-    "vue": "^2.7.7"
-  },
   "devDependencies": {
     "@rushstack/eslint-patch": "^1.1.0",
     "@types/node": "^16.18.4",
