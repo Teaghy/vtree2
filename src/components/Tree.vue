@@ -660,6 +660,14 @@ export default (Vue as VueConstructor<Vue & {
     setExpandAll (value: boolean): void {
       this.nonReactive.store.setExpandAll(value)
     },
+    // 更新节点
+    updateNode (key: TreeNodeKeyType, node: ITreeNodeOptions) {
+      this.nonReactive.store.updateNode(key, node);
+    },
+    // 更新多个节点
+    updateNodes (nodes: ITreeNodeOptions[]) {
+      this.nonReactive.store.updateNodes(nodes);
+    },
     getCheckedNodes (ignoreMode?: IgnoreType): TreeNodeType[] {
       ignoreMode = ignoreMode || this.ignoreMode
       return this.nonReactive.store.getCheckedNodes(ignoreMode)

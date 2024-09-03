@@ -512,6 +512,46 @@ export default class TreeStore {
     }
   }
 
+  // 更新节点
+  updateNode(key: TreeNodeKeyType, newNode: ITreeNodeOptions, triggerDataChange = true) {
+    if (!this.mapData[key]) return;
+    // 不允许设置的属性
+    const notAllowedFields = [
+      this.options.keyField,
+      'indeterminate',
+      'visible',
+      'isLeaf',
+    ];
+    const node: ITreeNodeOptions = {};
+    Object.keys(newNode).forEach(field => {
+      if (!notAllowedFields.includes(field) && !field.startsWith('_')) {
+        node[field] = newNode[field];
+      }
+    });
+
+    if (Array.isArray(node.children)) {
+      this.mapData[key].setChildren(node.children);
+      delete node.children;
+    }
+
+    Object.keys(node).forEach((field) => {
+      this.mapData[key][field] = node[field]
+    })
+
+    if (triggerDataChange) {
+      this.emit('visible-data-change')
+    }
+  }
+
+  // 更新多个节点
+  updateNodes(nodes: ITreeNodeOptions[]) {
+    const needUpdateNodes = nodes.filter(item => item[this.options.keyField]);
+    needUpdateNodes.forEach(item => {
+      this.updateNode(item[this.options.keyField], item, false);
+    })
+    this.emit('visible-data-change')
+  }
+
   //#endregion Set api
 
   //#region Get api

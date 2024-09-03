@@ -7,6 +7,7 @@
         <div class="interface">
           <div style="height: 300px;">
             <CTree
+              ref="fTree"
               :data="basicUsage"
               multiple
               selectable
@@ -16,7 +17,7 @@
           </div>
         </div>
         <div class="desc">
-          纯展示
+          <button @click="handleClick">updateNode</button>
         </div>
       </div>
     </div>
@@ -485,6 +486,12 @@ export default {
     onShowLinePolylineBtnClick (polyline) {
       this.showLinePolyline = polyline
     },
+    handleClick() {
+      const target = this.$refs.fTree;
+      const nodes = target.getTreeData()[0];
+      target.updateNode(nodes.id, {...nodes, title: 999999 })
+      // this.$refs.fTree.updateNode()
+    }
   },
 }
 </script>
