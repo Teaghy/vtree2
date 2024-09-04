@@ -8,6 +8,48 @@
           <div style="height: 300px;">
             <CTree
               :data="basicUsage"
+              multiple
+              selectable
+              :nodeClassName="(node) => `generated-class-${node.id}`"
+              animation
+            />
+          </div>
+        </div>
+        <div class="desc">
+          纯展示
+        </div>
+      </div>
+    </div>
+    <!-- CTree Search -->
+    <div class="panel">
+      <div class="header">CTreeDrop基本用法</div>
+      <div class="body">
+        <div class="interface">
+          <div style="height: 300px;">
+            <CTreeDrop
+              :data="basicUsage"
+              multiple
+              selectable
+              :nodeClassName="(node) => `generated-class-${node.id}`"
+              animation
+            />
+          </div>
+        </div>
+        <div class="desc">
+          纯展示
+        </div>
+      </div>
+    </div>
+    <!-- CTree Search -->
+    <div class="panel">
+      <div class="header">CtreeDrop基本用法</div>
+      <div class="body">
+        <div class="interface">
+          <div style="height: 300px;">
+            <CTreeSearch
+              :data="basicUsage"
+              multiple
+              selectable
               :nodeClassName="(node) => `generated-class-${node.id}`"
               animation
             />
@@ -44,16 +86,17 @@
         <div class="interface">
           <div style="height: 300px;">
             <CTree
-              v-model="selectableValue"
+              :selected-keys.sync="selectedKeys"
               :data="selectable"
+              multiple
               selectable
             ></CTree>
           </div>
         </div>
         <div class="desc">
-          单选模式。设置 selectable 即可<br/>
+          单选模式。设置 selectedKeys 即可<br/>
           v-model: <br/>
-          {{ selectableValue }}
+          {{ selectedKeys }}
         </div>
       </div>
     </div>
@@ -122,7 +165,7 @@
         <div class="interface">
           <div style="height: 300px;">
             <CTree
-            animation
+              animation
               v-model="bothValue"
               :data="both"
               checkable
@@ -167,7 +210,7 @@
             >
               {{ showLineType }}
             </button>
-            <p>当前连接线类型：{{showLineType}}</p>
+            <p>当前连接线类型：{{ showLineType }}</p>
           </div>
           <div class="desc-block">
             showLine.polyline:
@@ -179,7 +222,7 @@
             >
               {{ polyline }}
             </button>
-            <p>是否启用折线：{{showLinePolyline}}</p>
+            <p>是否启用折线：{{ showLinePolyline }}</p>
           </div>
         </div>
       </div>
@@ -202,7 +245,39 @@
           <div class="desc-block">
             除了 render，也可以传入 slot 自定义树节点
             <pre>
-              {{ nodeSlotDescText }}
+            {{ nodeSlotDescText }}
+            </pre>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 自定义节点图标 -->
+    <div class="panel">
+      <div class="header">自定义节点图标</div>
+      <div class="body">
+        <div class="interface">
+          <div style="height: 300px;">
+            <CTree
+              animation
+              :data="basicUsage"
+              :nodeClassName="(node) => `generated-class-${node.id}`"
+            >
+              <template #switcherIcon="{ node }">
+                <i
+                  :class="[node.expand ? 'iconfont icon-shouhui' : 'iconfont icon-zhankai']"
+                >
+                  {{ node.expand ? 'P' : 'Q' }}
+                </i>
+              </template>
+            </CTree>
+          </div>
+        </div>
+        <div class="desc">
+          <div class="desc-block">
+            传入 slot 自定义节点图标，可通过node.expand来进行切换
+            <pre>
+            {{ nodeIconSlotDescText }}
             </pre>
           </div>
         </div>
@@ -227,9 +302,7 @@
             如果没有传 data ，则初始化时调用 load 方法载入根数据，其中节点参数为 null
           </div>
           <div class="desc-block">
-            <button
-              @click="remoteShow = false; $nextTick(() => { remoteShow = true })"
-            >加载树组件</button>
+            <button @click="remoteShow = false; $nextTick(() => { remoteShow = true })">加载树组件</button>
           </div>
         </div>
       </div>
@@ -239,6 +312,8 @@
 
 <script>
 import CTree from '@/components/Tree.vue';
+import CTreeSearch from '@/components/TreeSearch.vue';
+import CTreeDrop from '@/components/TreeDrop.vue';
 import '@/styles/index.less';
 import treeDataGenerator from '../tests/tree-data-generator'
 
@@ -262,6 +337,8 @@ export default {
   name: 'Feature',
   components: {
     CTree,
+    CTreeSearch,
+    CTreeDrop
   },
   data () {
     const selectableData = genData().data
@@ -282,6 +359,8 @@ export default {
       selectable: selectableData,
       // selectableValue: selectableData[0].id,
       selectableValue: '',
+
+      selectedKeys: [],
 
       // 多选
       showCheckable: true,
@@ -374,11 +453,19 @@ export default {
 
       // 自定义节点
       nodeSlotDescText: `
-<VTree :data="basicUsage">
+<CTree :data="basicUsage">
   <template v-slot:node="{ node }">
     <button>{{ node.title }}</button>
   </template>
-</VTree>
+</CTree>
+      `,
+      // 自定义节点图标
+      nodeIconSlotDescText: `
+<CTree :data="basicUsage">
+  <template v-slot:switcherIcon="{ node }">
+    <i>{{ node.expand ? 'P' : 'Q' }} </i>
+  </template>
+</CTree>
       `,
 
       // 远程
@@ -408,30 +495,37 @@ export default {
   height: 100%;
   padding: 10px;
   box-sizing: border-box;
+
   .panel {
     width: 100%;
     margin-bottom: 10px;
     border: 1px solid lightgray;
     border-radius: 5px;
+
     .header {
       height: 30px;
       border-bottom: 1px solid lightgray;
       padding: 10px 30px;
     }
+
     .body {
       display: flex;
+
       .interface {
         flex: 1;
         padding: 10px 30px;
         border-right: 1px solid lightgray;
       }
+
       .desc {
         flex: 1;
         padding: 10px 30px;
+
         .desc-block {
           padding: 5px 0;
           margin-bottom: 10px;
           border-bottom: 1px solid lightgray;
+
           &:last-child {
             border-bottom: none;
           }

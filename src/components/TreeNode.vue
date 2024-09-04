@@ -1,7 +1,7 @@
 <template>
   <div :class="indentWrapperCls">
     <template v-if="showLine">
-      <template v-for="(level, index) in data._level">
+      <template v-for="(_, index) in data._level">
         <svg
           viewBox="0 0 100 100"
           preserveAspectRatio="none"
@@ -34,13 +34,11 @@
         v-on="dropListeners"
       >
         <!-- 展开按钮 -->
-        <div :class="squareCls">
-          <!-- 外层用于占位，icon 用于点击 -->
-          <i
-            v-show="!data.isLeaf && !data._loading"
-            :class="expandCls"
-            @click="handleExpand"
-          ></i>
+        <div :class="squareCls" @click="handleExpand">
+          <!-- 外层用于占位点击，i标签是默认的图标 -->
+          <slot name="switcherIcon" v-if="!data.isLeaf && !data._loading" :node="fullData">
+            <i :class="expandCls"></i>
+          </slot>
           <LoadingIcon
             v-if="data._loading"
             :class="loadingIconCls"
@@ -115,9 +113,9 @@ export default (Vue as VueConstructor<Vue & {
     /** 节点渲染 render 函数 */
     render: Function as any as () => (h: CreateElement, node: TreeNode) => VNode,
 
-    /** 是否可多选 */
+    /** 是否显示选择框 */
     checkable: Boolean,
-
+    
     /** 是否可单选 */
     selectable: Boolean,
 
@@ -228,7 +226,7 @@ export default (Vue as VueConstructor<Vue & {
       return [
         `${prefixCls}__checkbox`,
         {
-          [`${prefixCls}__checkbox_checked`]: this.data.checked,
+          [`${prefixCls}__checkbox_checked`]: this.data._checked,
           [`${prefixCls}__checkbox_indeterminate`]: this.data.indeterminate,
           [`${prefixCls}__checkbox_disabled`]: this.disableAll || this.data.disabled,
         },
@@ -238,7 +236,7 @@ export default (Vue as VueConstructor<Vue & {
       return [
         `${prefixCls}__title`,
         {
-          [`${prefixCls}__title_selected`]: this.data.selected,
+          [`${prefixCls}__title_selected`]: this.data._selected,
           [`${prefixCls}__title_disabled`]: this.disableAll || this.data.disabled,
         },
       ]
@@ -348,7 +346,7 @@ export default (Vue as VueConstructor<Vue & {
       this.$emit('click', this.fullData, e)
       if (this.selectable) {
         if (this.disableAll || this.data.disabled) return
-        if (this.data.selected && !this.unselectOnClick) return
+        if (this.data._selected && !this.unselectOnClick) return
         this.$emit('select', this.fullData, e)
       } else if (this.checkable) {
         this.handleCheck()

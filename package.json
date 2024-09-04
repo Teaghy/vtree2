@@ -1,7 +1,7 @@
 {
   "name": "@teaghy/vtree",
   "private": false,
-  "version": "0.0.12",
+  "version": "1.0.0",
   "type": "module",
   "files": [
     "dist"
@@ -13,10 +13,8 @@
       "import": "./dist/virtual-tree.js",
       "require": "./dist/virtual-tree.umd.cjs"
     },
-    "./dist/style.css": {
-      "import": "./dist/style.css",
-      "require": "./dist/style.css"
-    }
+    "./style.css": "./dist/style.css",
+    "./*": "./*"
   },
   "scripts": {
     "dev": "vite",
@@ -46,8 +44,8 @@
     "terser": "^5.16.0",
     "typescript": "~4.7.4",
     "vite": "^3.2.0",
-    "vue": "^2.7.7",
-    "vue-tsc": "^0.38.8"
+    "vue-tsc": "^0.38.8",
+    "vue": "^2.7.7"
   },
   "publishConfig": {
     "registry": "https://registry.npmjs.org/",

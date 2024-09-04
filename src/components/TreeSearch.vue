@@ -366,7 +366,7 @@ export default (
       let isInterrupted = false;
       for (let i = 0; i < length; i++) {
         const node = currentVisibleNodes[i];
-        if (node.checked) {
+        if (node._checked) {
           hasChecked = true;
         } else {
           hasUnchecked = true;
