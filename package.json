@@ -1,7 +1,7 @@
 {
   "name": "@teaghy/vtree",
   "private": false,
-  "version": "1.0.0-beta.5",
+  "version": "1.0.0",
   "type": "module",
   "files": [
     "dist"
@@ -13,10 +13,8 @@
       "import": "./dist/virtual-tree.js",
       "require": "./dist/virtual-tree.umd.cjs"
     },
-    "./dist/style.css": {
-      "import": "./dist/style.css",
-      "require": "./dist/style.css"
-    }
+    "./style.css": "./dist/style.css",
+    "./*": "./*"
   },
   "scripts": {
     "dev": "vite",
