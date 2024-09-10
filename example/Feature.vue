@@ -489,7 +489,16 @@ export default {
     handleClick() {
       const target = this.$refs.fTree;
       const nodes = target.getTreeData()[0];
-      target.updateNode(nodes.id, {...nodes, title: 999999 })
+      target.updateNode(nodes.id, {...nodes, title: 999999, children: [
+        {
+          title: 'node-1-3-1',
+          id: 'node-1-3-1',
+        },
+        {
+          title: 'node-1-3-2',
+          id: 'node-1-3-2',
+        },
+      ] })
       // this.$refs.fTree.updateNode()
     }
   },

@@ -514,7 +514,8 @@ export default class TreeStore {
 
   // 更新节点
   updateNode(key: TreeNodeKeyType, newNode: ITreeNodeOptions, triggerDataChange = true) {
-    if (!this.mapData[key]) return;
+    const targetNode = this.mapData[key];
+    if (!targetNode) return;
     // 不允许设置的属性
     const notAllowedFields = [
       this.options.keyField,
@@ -529,9 +530,15 @@ export default class TreeStore {
       }
     });
 
-    if (Array.isArray(node.children)) {
-      this.mapData[key].setChildren(node.children);
-      delete node.children;
+    if (('children' in node) && targetNode.children.length && node.children?.length) {
+      // 删除原来的children
+      this.removeChildren(key, false, false);
+
+      if (Array.isArray(node.children)) {
+        this.loadChildren(targetNode, node.children, node.expand)
+      }
+
+      delete node.children
     }
 
     Object.keys(node).forEach((field) => {
@@ -546,9 +553,26 @@ export default class TreeStore {
   // 更新多个节点
   updateNodes(nodes: ITreeNodeOptions[]) {
     const needUpdateNodes = nodes.filter(item => item[this.options.keyField]);
+    if (!needUpdateNodes.length) return;
+    const previousCheckedKeys = this.getCheckedKeys()
+    const previousSelectedKey = this.getSelectedKey()
     needUpdateNodes.forEach(item => {
-      this.updateNode(item[this.options.keyField], item, false);
+      const key = item[this.options.keyField];
+      const node = this.mapData[key];
+      if (node) {
+        this.updateNode(key, item, false);
+      }
     })
+    const currentCheckedKeys = this.getCheckedKeys()
+    const currentSelectedKey = this.getSelectedKey()
+
+    if (JSON.stringify(currentCheckedKeys.sort()) !== JSON.stringify(previousCheckedKeys.sort())) {
+      this.triggerCheckedChange(true, false)
+    }
+
+    if (JSON.stringify(currentSelectedKey?.sort() || []) !== JSON.stringify(previousSelectedKey?.sort() || [])) {
+      this.triggerSelectChange(true, false)
+    }
     this.emit('visible-data-change')
   }
 
@@ -796,6 +820,78 @@ export default class TreeStore {
     return node
   }
 
+  private removeChildren(
+    parentKey: TreeNodeKeyType,
+    triggerEvent: boolean = true,
+    triggerDataChange: boolean = true,
+  ) {
+    const node = this.mapData[parentKey]
+    if (!node || !node.children.length) return null
+
+    const firstChild = node.children[0]
+    let movingNode = firstChild
+
+    // 从 flatData 中移除
+    const index = this.findIndex(node)
+    if (index === -1) return null
+    let deleteCount = 0
+    const length = this.flatData.length
+    for (let i = index + 1; i < length; i++) {
+      if (this.flatData[i]._level > node._level) {
+        // 从 mapData 中移除
+        delete this.mapData[this.flatData[i][this.options.keyField]]
+        deleteCount++
+
+        // 如果是 Selected 的节点，则记录
+        if (this.flatData[i].selected) {
+          movingNode = this.flatData[i]
+        }
+      } else break
+    }
+    this.flatData.splice(index + 1, deleteCount)
+
+    // 从父节点 children 中移除
+    node.children.splice(0, node.children.length)
+    node.isLeaf = true
+    node.indeterminate = false
+
+    // 更新被移除处父节点状态
+    this.updateMovingNodeStatus(movingNode, triggerEvent, triggerDataChange)
+
+    if (triggerDataChange) {
+      this.emit('visible-data-change')
+    }
+
+    return node
+  }
+
+  /**
+   * 
+   * @param node 加载的node节点
+   * @param children 
+   * @param expand 
+   * @returns 
+   */
+  private loadChildren(node: TreeNode, children: any[], expand: boolean) {
+    const parentIndex: number = this.findIndex(node)
+    if (parentIndex === -1) return
+    node._loaded = true
+    node.expand = expand
+    node.setChildren(children)
+    node.isLeaf = !node.children.length
+    // 如果单选选中的值为空，则允许后续数据覆盖单选 value
+    const currentCheckedKeys = this.getCheckedKeys()
+    const flattenChildren = this.flattenData(node.children)
+    this.insertIntoFlatData(parentIndex + 1, flattenChildren)
+    // 如果有未加载的选中节点，判断其是否已加载
+    this.setUnloadCheckedKeys(currentCheckedKeys)
+    if (this.unloadSelectedKeys !== null) {
+      this.setUnloadSelectedKeys(this.unloadSelectedKeys)
+    }
+
+    this.checkNodeUpward(node, true)
+  }
+
   private getInsertedNode (insertedNode: TreeNodeKeyType | ITreeNodeOptions, referenceKey: TreeNodeKeyType, isParent: boolean = false): TreeNode | null {
     const referenceNode = this.mapData[referenceKey]
     if (!referenceNode) return null
@@ -823,7 +919,7 @@ export default class TreeStore {
    * @param flatIndex 在 flatData 中的索引
    * @param dataIndex 如果没有父节点，需要提供节点在 data 中的索引
    */
-  private insertIntoStore (node: TreeNode, parentNode: TreeNode | null, childIndex: number, flatIndex: number, dataIndex?: number): void {
+  private insertIntoStore (node: TreeNode, parentNode: TreeNode | null, childIndex: number, flatIndex: number, dataIndex?: number, triggerEvent = true, triggerDataChange = true): void {
     if (flatIndex === -1) return
 
     // 插入父节点 children 中
@@ -851,16 +947,16 @@ export default class TreeStore {
     this.insertIntoFlatData(flatIndex, nodes)
 
     // 更新被移除处父节点状态
-    this.updateMovingNodeStatus(node)
+    this.updateMovingNodeStatus(node, triggerEvent, triggerDataChange)
   }
 
-  private updateMovingNodeStatus (movingNode: TreeNode): void {
+  private updateMovingNodeStatus (movingNode: TreeNode, triggerEvent = true, triggerDataChange = true): void {
     // 处理多选
     this.checkNodeUpward(movingNode)
-    this.triggerCheckedChange()
+    this.triggerCheckedChange(triggerEvent, triggerDataChange)
     // 处理单选
     if (movingNode._selected) {
-      this.setSelected(movingNode[this.options.keyField], true)
+      this.setSelected(movingNode[this.options.keyField], true, triggerEvent, triggerDataChange)
     }
   }
 
@@ -1017,9 +1113,10 @@ export default class TreeStore {
   /**
    * 向上勾选/取消勾选父节点，不包括自身
    * @param node 需要勾选的节点
+   * @param fromCurrentNode 是否从当前节点开始处理
    */
-  private checkNodeUpward (node: TreeNode) {
-    let parent = node._parent
+  private checkNodeUpward (node: TreeNode, fromCurrentNode = false) {
+    let parent = fromCurrentNode ? node : node._parent
     while (parent) {
       this.checkParentNode(parent)
       parent = parent._parent
