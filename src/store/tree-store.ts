@@ -36,6 +36,7 @@ export interface IEventNames {
   'check': NodeGeneralListenerType,
   'uncheck': NodeGeneralListenerType,
   'checked-change': (nodes: TreeNode[], keys: TreeNodeKeyType[]) => void,
+  'update-checked-keys': (nodes: TreeNodeKeyType[]) => void,
 }
 
 //#endregion Interfaces
@@ -136,6 +137,7 @@ export default class TreeStore {
     }
 
     if (triggerEvent) {
+      this.emit('update-checked-keys', this.getCheckedKeys());
       if (node._checked) {
         this.emit('check', node)
       } else {

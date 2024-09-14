@@ -113,6 +113,7 @@
               v-model="checkableValue"
               :data="checkable"
               checkable
+              @checked-change="handleChecked"
               :ignore-mode="checkableIgnoreMode"
               :cascade="checkableCascade"
             ></CTree>
@@ -492,6 +493,9 @@ export default {
       // const children = structuredClone(nodes.children)
       target.updateNode(nodes.id, { disabled: true })
       // this.$refs.fTree.updateNode()
+    },
+    handleChecked() {
+      console.log('checked');
     }
   },
 }

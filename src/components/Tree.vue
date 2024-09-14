@@ -195,7 +195,7 @@ export default (Vue as VueConstructor<Vue & {
   },
   model: {
     prop: 'checkedKeys',
-    event: 'check',
+    event: 'update-checked-keys',
   },
   props: {
     /** 单选模式下为字符串或数字，多选模式下为数组或者以 separator 分隔的字符串。当即可单选又可多选时，value 是多选的值 */
@@ -443,6 +443,7 @@ export default (Vue as VueConstructor<Vue & {
   data () {
     // const valueCache = Array.isArray(this.value) ? this.value.concat() : this.value
     const valueCache = Array.isArray(this.selectedKeys) ? this.selectedKeys.concat() : this.selectedKeys
+    const checkedCache = Array.isArray(this.checkedKeys) ? this.checkedKeys.concat() : this.checkedKeys
     return {
       /** 未加载选中的节点，展示已选时生成，其他情况下没用 */
       unloadCheckedNodes: ([] as TreeNodeType[]),
@@ -479,6 +480,9 @@ export default (Vue as VueConstructor<Vue & {
 
       /** 缓存的 value ，用于 value 变化时与之做比对 */
       valueCache: (valueCache as VModelType),
+
+      /** 缓存的 value ，用于 value 变化时与之做比对 */
+      checkedCache: (checkedCache as VModelType),
 
       /** 防抖计时器 id */
       debounceTimer: (undefined as number | undefined),
@@ -834,7 +838,7 @@ export default (Vue as VueConstructor<Vue & {
 
     //#region Handle node events
     handleNodeCheck (node: TreeNodeType): void {
-      if (!this.cascade && this.enableLeafOnly && !node.isLeaf) return
+      if (!this.cascade && this.enableLeafOnly && !node.isLeaf) return;
       this.nonReactive.store.setChecked(node[this.keyField], node.indeterminate ? false : !node._checked, true, true, true)
     },
     handleNodeSelect (node: TreeNodeType): void {
@@ -889,6 +893,12 @@ export default (Vue as VueConstructor<Vue & {
         const emitValue: TreeNodeKeyType[] = selectedKeys ? selectedKeys : []
         this.valueCache = emitValue
         this.$emit('update:selected-keys', emitValue)
+      }
+    },
+    emitCheckedKeys(checkedKeys: TreeNodeKeyType[]): void {
+      if (this.checkable) {
+        this.checkedCache = checkedKeys
+        this.$emit('update-checked-keys', checkedKeys);
       }
     },
 
@@ -1078,6 +1088,7 @@ export default (Vue as VueConstructor<Vue & {
       this.updateUnloadStatus()
     })
     this.nonReactive.store.on('selected-change', this.emitSelectableInput)
+    this.nonReactive.store.on('update-checked-keys', this.emitCheckedKeys)
     this.attachStoreEvents()
   },
   mounted () {
@@ -1104,17 +1115,18 @@ export default (Vue as VueConstructor<Vue & {
     this.initializeNonReactiveData()
   },
   watch: {
-    selectedKeys (newVal: TreeNodeKeyType[], oldValue:  TreeNodeKeyType[]) {
+    selectedKeys (newVal: TreeNodeKeyType[]) {
       // 检查是否由 input 事件触发
-      if (sameValue(newVal, oldValue)) return
+      if (sameValue(newVal, this.valueCache)) return
       this.nonReactive.store.clearSelected(false, false);
       this.nonReactive.store.setSelectedKeys(newVal as TreeNodeKeyType[])
     },
-    checkedKeys (newVal: TreeNodeKeyType[], oldValue:  TreeNodeKeyType[]) {
+    checkedKeys (newVal: TreeNodeKeyType[]) {
        // 检查是否由 input 事件触发
-       if (sameValue(newVal, oldValue)) return
+      if (sameValue(newVal, this.checkedCache)) return;
+      const checkedKeys = newVal.concat();
       this.nonReactive.store.clearChecked(false, false);
-      this.nonReactive.store.setCheckedKeys(newVal, true)
+      this.nonReactive.store.setCheckedKeys(checkedKeys, false)
     },
 
     // value (newVal: VModelType) {
