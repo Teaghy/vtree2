@@ -1126,7 +1126,7 @@ export default (Vue as VueConstructor<Vue & {
       if (sameValue(newVal, this.checkedCache)) return;
       const checkedKeys = newVal.concat();
       this.nonReactive.store.clearChecked(false, false);
-      this.nonReactive.store.setCheckedKeys(checkedKeys, false)
+      this.nonReactive.store.setCheckedKeys(checkedKeys, true)
     },
 
     // value (newVal: VModelType) {
