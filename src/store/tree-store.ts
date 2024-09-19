@@ -240,6 +240,21 @@ export default class TreeStore {
     }
   }
 
+   /**
+   * 触发 selected-change 的快捷方法
+   * @param triggerEvent 是否触发事件
+   * @param triggerDataChange 是否触发视图刷新
+   */
+   private triggerSelectedChange (triggerEvent: boolean = true, triggerDataChange: boolean = true) {
+    if (triggerEvent) {
+      this.emit('selected-change', this.getSelectedNode(), this.getSelectedKey())
+    }
+
+    if (triggerDataChange) {
+      this.emit('render-data-change')
+    }
+  }
+
   /**
    * 设置单选选中
    * @param key 选中节点 key
@@ -289,13 +304,9 @@ export default class TreeStore {
       } else {
         this.emit('unselect', node)
       }
-
-      this.emit('selected-change', this.getSelectedNode(), this.getSelectedKey())
     }
 
-    if (triggerDataChange) {
-      this.emit('render-data-change')
-    }
+    this.triggerSelectedChange(triggerEvent, triggerDataChange)
   }
 
   /**
@@ -308,23 +319,9 @@ export default class TreeStore {
       this.setSelected(key, true, false, false, true)
     })
 
-    this.triggerSelectChange(triggerEvent, triggerDataChange)
+    this.triggerSelectedChange(triggerEvent, triggerDataChange)
   }
 
-  /**
-   * 触发 selected-change 的快捷方法
-   * @param triggerEvent 是否触发事件
-   * @param triggerDataChange 是否触发视图刷新
-   */
-  private triggerSelectChange (triggerEvent: boolean = true, triggerDataChange: boolean = true) {
-    if (triggerEvent) {
-      this.emit('selected-change', this.getSelectedNode(), this.getSelectedKey())
-    }
-
-    if (triggerDataChange) {
-      this.emit('render-data-change')
-    }
-  }
 
   /**
    * 设置未加载单选选中节点，不公开此 API
@@ -573,7 +570,7 @@ export default class TreeStore {
     }
 
     if (JSON.stringify(currentSelectedKey?.sort() || []) !== JSON.stringify(previousSelectedKey?.sort() || [])) {
-      this.triggerSelectChange(true, false)
+      this.triggerSelectedChange(true, false)
     }
     this.emit('visible-data-change')
   }

@@ -11,6 +11,7 @@
               :data="basicUsage"
               multiple
               selectable
+              @selected-change="selectChange"
               :nodeClassName="(node) => `generated-class-${node.id}`"
               animation
             />
@@ -496,6 +497,9 @@ export default {
     },
     handleChecked() {
       console.log('checked');
+    },
+    selectChange(node) {
+      console.log(node);
     }
   },
 }
