@@ -540,6 +540,19 @@ export default class TreeStore {
       delete node.children
     }
 
+    // if ('checked' in node) {
+    //   this.setChecked(key, node.checked, false, false)
+    //   delete node.checked
+    // }
+    // if ('selected' in node) {
+    //   this.setSelected(key, node.selected, false, false)
+    //   delete node.selected
+    // }
+    if ('expand' in node) {
+      this.setExpand(key, node.expand, false, false, false)
+      delete node.expand
+    }
+
     Object.keys(node).forEach((field) => {
       this.mapData[key][field] = node[field]
     })

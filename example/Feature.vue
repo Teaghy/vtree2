@@ -492,7 +492,7 @@ export default {
       const target = this.$refs.fTree;
       const nodes = target.getTreeData()[0];
       // const children = structuredClone(nodes.children)
-      target.updateNode(nodes.id, { disabled: true })
+      target.updateNode(nodes.id, { disabled: true, expand: true })
       // this.$refs.fTree.updateNode()
     },
     handleChecked() {
