@@ -90,6 +90,8 @@ import '@teaghy/vtree/dist/style.css';
 | node-dragover    | dragover 时触发   | 节点信息 , 拖拽事件对象, 事件触发的节点部位 `'before' \| 'body' \| 'after'` |
 | node-dragleave   | dragleave 时触发  | 节点信息 , 拖拽事件对象, 事件触发的节点部位 `'before' \| 'body' \| 'after'` |
 | node-drop        | 放置节点时触发        | 节点信息 , 拖拽事件对象, 事件触发的节点部位 `'before' \| 'body' \| 'after'` |
+| before-expand    | 节点展开之前触发       | 节点信息                                                     |
+| after-expand     | 节点展开之后触发       | `void` （注：如果有展开动画， 会在展开动画完成后触发）                          |
 
 ### CTree Methods
 
@@ -125,8 +127,8 @@ import '@teaghy/vtree/dist/style.css';
 | filter                 | 过滤节点                       | `keyword: string` : 过滤关键词<br/> `filterMethod: (keyword: string, node: TreeNode) => boolean` : 过滤方法，默认为 filterMethod Prop ，如果没有传 filterMethod Prop 则为搜索 title 字段的一个内置方法 | `void`                     |
 | showCheckedNodes       | 展示已选节点                     | `showUnloadCheckedNodes: boolean` : 是否显示未加载的选中节点，默认为 Prop 传入的值                                                                                                         | `void`                     |
 | loadRootNodes          | 从远程加载根节点                   | 无                                                                                                                                                                      | `Promise<void>`            |
-| updateNode             | 更新单个节点                     | `key: string \| number`: 节点 key<br/>`newNode: object`: 新节点数据                                                                                                           | `void`                     |
-| updateNodes            | 更新多个节点                     | `newNodes: object[]`: 新节点数据数组，与 updateNode 相同，特定的字段会被忽略，且没有 key 字段的元素将被忽略                                                                                              | `void`                     |
+| updateNode             | 更新单个节点                     | `key: string \| number` : 节点 key<br/> `newNode: object` : 新节点数据                                                                                                        | `void`                     |
+| updateNodes            | 更新多个节点                     | `newNodes: object[]` : 新节点数据数组，与 updateNode 相同，特定的字段会被忽略，且没有 key 字段的元素将被忽略                                                                                             | `void`                     |
 | scrollTo               | 滚动到指定节点位置                  | `key: string \| number` : 节点 key<br/> `verticalPosition: 'top' \| 'center' \| 'bottom' \| number` : 滚动的垂直位置                                                            | `void`                     |
 
 ### CTree Slots

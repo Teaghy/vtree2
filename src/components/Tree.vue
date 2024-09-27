@@ -1011,6 +1011,7 @@ export default (Vue as VueConstructor<Vue & {
     },
 
     updateBeforeExpand (nodeToExpand: TreeNodeType): void {
+      this.$emit('before-expand', nodeToExpand);
       if (!this.animation) return
       this.resetExpandAnimation()
 
@@ -1032,7 +1033,11 @@ export default (Vue as VueConstructor<Vue & {
     },
 
     updateAfterExpand (): void {
-      if (!this.animation) return
+      if (!this.animation) {
+        // 没有动画直接触发after-expand
+        this.$emit('after-expand');
+        return;
+      }
 
       if (!this.expandAnimation.start) {
         this.expandAnimation.start = false
@@ -1055,7 +1060,11 @@ export default (Vue as VueConstructor<Vue & {
       })
     },
 
-   onExpandAnimationFinish (): void {
+    onExpandAnimationFinish (): void {
+      if (this.animation) {
+        // 动画完成后触发after-expand
+        this.$emit('after-expand');
+      }
       this.resetExpandAnimation()
     },
     // #endregion expand animation
