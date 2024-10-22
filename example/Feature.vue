@@ -9,6 +9,8 @@
             <CTree
               ref="fTree"
               :data="basicUsage"
+              draggable
+              droppable
               multiple
               selectable
               @selected-change="selectChange"
