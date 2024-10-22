@@ -993,7 +993,6 @@ export default class TreeStore {
       }
     })
     
-    console.log(filterVisibleNodes);
     // 对于临时列表中的节点，都是可见的，因此将它们的父节点都设为可见并展开
     filterVisibleNodes.forEach((node) => {
       const stack = []
