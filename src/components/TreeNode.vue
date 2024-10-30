@@ -347,7 +347,7 @@ export default (Vue as VueConstructor<Vue & {
       if (this.selectable) {
         if (this.disableAll || this.data.disabled) return
         if (this.data._selected && !this.unselectOnClick) return
-        this.$emit('select', this.fullData, e)
+        this.$emit('select', this.fullData)
       } else if (this.checkable) {
         this.handleCheck()
       } else {

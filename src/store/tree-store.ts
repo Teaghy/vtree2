@@ -25,12 +25,17 @@ interface IListenersMap {
   [eventName: string]: Function[],
 }
 
+interface SelectEventOptions {
+  selected: boolean,
+  [key: string]: any,
+}
+
 export interface IEventNames {
   'set-data': () => void,
   'visible-data-change': () => void,
   'render-data-change': () => void,
   'expand': NodeGeneralListenerType,
-  'select': NodeGeneralListenerType,
+  'select': (node: TreeNode | null, e: SelectEventOptions) => void,
   'unselect': NodeGeneralListenerType,
   'selected-change': (node: TreeNode[] | null, key: TreeNodeKeyType[] | null) => void,
   'check': NodeGeneralListenerType,
@@ -297,11 +302,9 @@ export default class TreeStore {
         }
       }
     }
-
     if (triggerEvent) {
-      if (node._selected) {
-        this.emit('select', node)
-      } else {
+      this.emit('select', node, { selected: node._selected })
+      if (!node._selected) {
         this.emit('unselect', node)
       }
     }

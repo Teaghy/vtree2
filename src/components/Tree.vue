@@ -841,7 +841,7 @@ export default (Vue as VueConstructor<Vue & {
       if (!this.cascade && this.enableLeafOnly && !node.isLeaf) return;
       this.nonReactive.store.setChecked(node[this.keyField], node.indeterminate ? false : !node._checked, true, true, true)
     },
-    handleNodeSelect (node: TreeNodeType): void {
+    handleNodeSelect (node: TreeNodeType, e: MouseEvent): void {
       if (this.enableLeafOnly && !node.isLeaf) return
       this.nonReactive.store.setSelected(node[this.keyField], !node._selected, true, true, this.multiple)
     },

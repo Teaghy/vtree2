@@ -13,7 +13,8 @@
               droppable
               multiple
               selectable
-              @selected-change="selectChange"
+              @node-right-click="rightClick"
+              @select="selectChange"
               :nodeClassName="(node) => `generated-class-${node.id}`"
               animation
             />
@@ -500,8 +501,11 @@ export default {
     handleChecked() {
       console.log('checked');
     },
-    selectChange(node) {
-      console.log(node);
+    selectChange(node, e) {
+      console.log(node, e);
+    },
+    rightClick(node, e) {
+      console.log(node, e);
     }
   },
 }
