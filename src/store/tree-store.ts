@@ -983,13 +983,16 @@ export default class TreeStore {
     // 使用树形结构数据进行遍历
     const filterVisibleNodes: TreeNode[] = []
     this.flatData.forEach((node) => {
-      node._filterVisible = node._parent && node._parent._filterVisible || filterMethod(keyword, node)
+      // node._filterVisible = node._parent && node._parent._filterVisible || filterMethod(keyword, node)
+      node._filterVisible = filterMethod(keyword, node)
+      
       node.visible = node._filterVisible
 
       if (node._filterVisible) {
         filterVisibleNodes.push(node)
       }
     })
+    
     // 对于临时列表中的节点，都是可见的，因此将它们的父节点都设为可见并展开
     filterVisibleNodes.forEach((node) => {
       const stack = []
@@ -1006,6 +1009,16 @@ export default class TreeStore {
         this.options.expandOnFilter && this.setExpand(parent[this.options.keyField], true, false, false, false)
       })
       node.visible = node._parent === null || (node._parent.expand && node._parent.visible)
+      // 如果搜的是父节点， 且子节点中没有数据， 则父节点折叠，子节点全部呈现出来
+      if (node.children.length) {
+        const childrenVisible = node.children.every(nodeItem => !nodeItem.visible);
+        if (childrenVisible) {
+          node.children.forEach(nodeItem => {
+            nodeItem._filterVisible = true;
+          });
+          this.setExpand(node[this.options.keyField], false, false, false, false)
+        }
+      }
     })
 
     this.emit('visible-data-change')
