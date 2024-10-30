@@ -80,7 +80,7 @@ import '@teaghy/vtree/dist/style.css';
 | check            | 勾选时触发（多选）      | 被勾选的节点信息                                                 |
 | uncheck          | 取消勾选时触发（多选）    | 被取消勾选的节点信息                                               |
 | checked-change   | 勾选/取消勾选时触发（多选） | 所有被勾选节点（数组）                                              |
-| select           | 选中时触发（单选）      | 被选中的节点信息                                                 |
+| select           | 选择时触发      | 节点信息, 选中的其它信息(选中状态等)                                                 |
 | unselect         | 取消选中时触发（单选）    | 被取消选中的节点信息                                               |
 | selected-change  | 选中/取消选中时触发（单选） | 被选中节点                                                    |
 | click            | 点击节点时触发        | 节点信息                                                     |
