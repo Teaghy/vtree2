@@ -31,8 +31,8 @@ export default class TreeNode {
   // /** 多选是否选中 */
   // checked: boolean = false
 
-  // /** 单选是否选中 */
-  // selected: boolean = false
+  /** 单选是否选中 */
+  _selected: boolean = false
 
   /** 是否半选状态 */
   indeterminate: boolean = false
