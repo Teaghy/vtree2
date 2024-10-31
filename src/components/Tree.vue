@@ -1126,16 +1126,20 @@ export default (Vue as VueConstructor<Vue & {
   watch: {
     selectedKeys (newVal: TreeNodeKeyType[]) {
       // 检查是否由 input 事件触发
-      if (sameValue(newVal, this.valueCache)) return
-      this.nonReactive.store.clearSelected(false, false);
-      this.nonReactive.store.setSelectedKeys(newVal as TreeNodeKeyType[])
+      if (this.selectable) {
+        if (sameValue(newVal, this.valueCache)) return
+        this.nonReactive.store.clearSelected(false, false);
+        this.nonReactive.store.setSelectedKeys(newVal as TreeNodeKeyType[])
+      }
     },
     checkedKeys (newVal: TreeNodeKeyType[]) {
-       // 检查是否由 input 事件触发
-      if (sameValue(newVal, this.checkedCache)) return;
-      const checkedKeys = newVal.concat();
-      this.nonReactive.store.clearChecked(false, false);
-      this.nonReactive.store.setCheckedKeys(checkedKeys, true)
+      // 检查是否由 input 事件触发
+      if (this.checkable) {
+        if (sameValue(newVal, this.checkedCache)) return;
+        const checkedKeys = newVal.concat();
+        this.nonReactive.store.clearChecked(false, false);
+        this.nonReactive.store.setCheckedKeys(checkedKeys, true)
+      }
     },
 
     // value (newVal: VModelType) {
