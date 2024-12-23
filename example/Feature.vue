@@ -9,7 +9,11 @@
             <CTree
               ref="fTree"
               :data="basicUsage"
+              v-model="checkedKeys"
               draggable
+              checkable
+              @check="onChecked"
+              @checked-change="checkChange"
               droppable
               multiple
               selectable
@@ -355,6 +359,7 @@ export default {
     // checkableData[1].children[0].children[0].checked = true
 
     return {
+      checkedKeys: [],
       // 基本用法
       basicUsage: genData().data,
 
@@ -494,9 +499,7 @@ export default {
     handleClick() {
       const target = this.$refs.fTree;
       const nodes = target.getTreeData()[0];
-      // const children = structuredClone(nodes.children)
-      target.updateNode(nodes.id, { disabled: true, expand: true })
-      // this.$refs.fTree.updateNode()
+      this.checkedKeys = [nodes.id];
     },
     handleChecked() {
       console.log('checked');
@@ -506,6 +509,12 @@ export default {
     },
     rightClick(node, e) {
       console.log(node, e);
+    },
+    onChecked(node, params) {
+      console.log(node, params, 'check');
+    },
+    checkChange(node) {
+      console.log(node, 'checkchange');
     }
   },
 }

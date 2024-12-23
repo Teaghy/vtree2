@@ -872,17 +872,18 @@ export default (Vue as VueConstructor<Vue & {
     },
     //#endregion Handle node events
 
-    /**
-     * 触发多选 input 事件
-     */
-    emitCheckableInput (checkedNodes: TreeNodeType[], checkedKeys: TreeNodeKeyType[]): void {
-      if (this.checkable) {
-        // 多选
-        // let emitValue: TreeNodeKeyType[] | string = checkedKeys
+    // 修改为了v-model
+    // /**
+    //  * 触发多选 input 事件
+    //  */
+    // emitCheckableInput (checkedNodes: TreeNodeType[], checkedKeys: TreeNodeKeyType[]): void {
+    //   if (this.checkable) {
+    //     // 多选
+    //     // let emitValue: TreeNodeKeyType[] | string = checkedKeys
 
-        this.$emit('check', checkedKeys)
-      }
-    },
+    //     this.$emit('check', checkedKeys)
+    //   }
+    // },
 
     /**
      * 触发选中的input 事件
@@ -1093,8 +1094,8 @@ export default (Vue as VueConstructor<Vue & {
     this.nonReactive.store.on('visible-data-change', this.updateBlockNodes)
     this.nonReactive.store.on('render-data-change', this.updateRender)
     this.nonReactive.store.on('checked-change', (checkedNodes: TreeNodeType[], checkedKeys: TreeNodeKeyType[]) => {
-      this.emitCheckableInput(checkedNodes, checkedKeys)
-      this.updateUnloadStatus()
+      // this.emitCheckableInput(checkedNodes, checkedKeys)
+      this.updateUnloadStatus();
     })
     this.nonReactive.store.on('selected-change', this.emitSelectableInput)
     this.nonReactive.store.on('update-checked-keys', this.emitCheckedKeys)
