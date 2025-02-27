@@ -14,6 +14,7 @@ interface ITreeStoreOptions {
   defaultExpandAll?: boolean,
   load?: Function,
   expandOnFilter?: boolean,
+  onDuplicateKey?: string,
 }
 
 interface IMapData {
@@ -63,6 +64,8 @@ export type FilterFunctionType = (keyword: string, node: TreeNode) => boolean
 
 export default class TreeStore {
   //#region Properties
+  // 重复的key的处理方式
+  onDuplicateKey: string = 'throw'
 
   /** 树数据 */
   data: TreeNode[] = []
@@ -1087,7 +1090,11 @@ export default class TreeStore {
       const key: TreeNodeKeyType = node[this.options.keyField]
       result.push(node)
       if (this.mapData[key]) {
-        throw new Error('[CTree] Duplicate tree node key.')
+        if (this.options.onDuplicateKey === 'warn') {
+          console.warn(`[CTree] Duplicate tree node key: ${key}`);
+        } else {
+          throw new Error('[CTree] Duplicate tree node key.')
+        }
       }
       this.mapData[key] = node
 
@@ -1248,6 +1255,12 @@ export default class TreeStore {
     const length: number = this.listenersMap[eventName].length
     for (let i: number = 0; i < length; i++) {
       this.listenersMap[eventName][i](...args)
+    }
+  }
+
+  disposeListeners(): void {
+    for (const eventName in this.listenersMap) {
+      this.listenersMap[eventName] = []
     }
   }
   //#endregion Mini EventTarget

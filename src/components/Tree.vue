@@ -204,6 +204,14 @@ export default (Vue as VueConstructor<Vue & {
     //   Number,
     //   Array as () => TreeNodeKeyType[],
     // ],
+    onDuplicateKey: {
+      type: String,
+      default: 'throw',
+      validator: (value: string) => {
+        // 校验传入的值是否合法
+        return ['throw', 'warn'].includes(value);
+      },
+    },
     checkedKeys: {
       type: Array as () => TreeNodeKeyType[],
       default: () => [],
@@ -1071,7 +1079,7 @@ export default (Vue as VueConstructor<Vue & {
     // #endregion expand animation
 
     initializeNonReactiveData (): void {
-      const { keyField, ignoreMode, filteredNodeCheckable, cascade, defaultExpandAll, load, expandOnFilter } = this
+      const { keyField, ignoreMode, filteredNodeCheckable, cascade, defaultExpandAll, load, expandOnFilter, onDuplicateKey } = this
       this.nonReactive = {
         store: new TreeStore({
           keyField,
@@ -1081,6 +1089,7 @@ export default (Vue as VueConstructor<Vue & {
           defaultExpandAll,
           load,
           expandOnFilter,
+          onDuplicateKey,
         }),
         blockNodes: [],
       }
@@ -1118,6 +1127,7 @@ export default (Vue as VueConstructor<Vue & {
     }
   },
   beforeDestroy () {
+    this.nonReactive.store.disposeListeners();
     const $iframe: HTMLIFrameElement = this.$refs.iframe
     if ($iframe.contentWindow) {
       $iframe.contentWindow.removeEventListener('resize', this.updateRender)
