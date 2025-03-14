@@ -1042,6 +1042,9 @@ export default (Vue as VueConstructor<Vue & {
     },
 
     updateAfterExpand (): void {
+      const expandKeys = this.nonReactive.store.getExpandKeys();
+      // 触发 expanded-keys 的更新
+      this.$emit('update:expanded-keys', expandKeys);
       if (!this.animation) {
         // 没有动画直接触发after-expand
         this.$emit('after-expand');
