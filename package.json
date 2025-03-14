@@ -24,7 +24,7 @@
     "type-check": "vue-tsc --noEmit",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
     "build:publish": "npm run build && npm exec terser -- -c -m --module dist/virtual-tree.js > dist/virtual-tree.min.js",
-    "publish": "npm run build && npm publish"
+    "publish:npm": "npm run build && npm publish"
   },
   "devDependencies": {
     "@rushstack/eslint-patch": "^1.1.0",
